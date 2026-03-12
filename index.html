@@ -833,11 +833,11 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
         <!-- Gallery input: no capture → file picker / gallery -->
         <input class="photo-input" type="file" id="photoGallery" name="photo_gallery" accept="image/*" onchange="handlePhoto(event)">
         <div class="photo-btns" id="photoBtns">
-          <label class="photo-btn-label" for="photoCamera" onclick="saveFormDraft()">
+          <label class="photo-btn-label" for="photoCamera" onclick="_markCameraOpen()">
             <svg width="17" height="17"><use href="#ico-cam"/></svg>
             Camera
           </label>
-          <label class="photo-btn-label" for="photoGallery" onclick="saveFormDraft()">
+          <label class="photo-btn-label" for="photoGallery" onclick="_markCameraOpen()">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
               <polyline points="21 15 16 10 5 21"/>
@@ -971,7 +971,8 @@ function handlePhoto(e) {
 
     setPhotoPreview(photoData);
 
-    // Restore form state from localStorage if page was reloaded by OS
+    // Camera returned successfully — clear flag and draft
+    _cameraOpen = false;
     clearFormDraft();
   };
   img.onerror = () => { URL.revokeObjectURL(objectUrl); toast('Foto laden mislukt', 'err'); };
@@ -993,6 +994,8 @@ function clearPhoto() {
   document.getElementById('photoZone').classList.remove('has-photo');
   document.getElementById('photoCamera').value  = '';
   document.getElementById('photoGallery').value = '';
+  _cameraOpen = false;
+  clearFormDraft();
 }
 
 function resetPhoto() {
@@ -1015,8 +1018,8 @@ function showApp() {
   document.getElementById('header').classList.add('show');
   document.getElementById('app').classList.add('show');
   loadStats(); loadItems();
-  // Restore form if Android OS killed app during camera use (page reloaded)
-  // iOS is handled separately via focus/pageshow events
+  // Android: OS killed app during camera → page reloaded → restore here
+  // (iOS is handled by visibilitychange, not here)
   const isAndroid = /android/i.test(navigator.userAgent);
   if (isAndroid && restoreFormDraft()) {
     setTimeout(() => openOv('fModal'), 400);
@@ -1334,42 +1337,51 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 }
 
-// Android may kill the app at ANY point when camera opens.
-// Save draft on every possible exit event, not just on label click.
-function _autoSaveDraft() {
-  // Only save if the form modal is actually open
+// ── Camera lifecycle: save & restore form state ───────────────────────────
+// _cameraOpen flag: set when user taps camera/gallery label.
+// Prevents spurious restores from unrelated visibility changes.
+let _cameraOpen = false;
+
+function _markCameraOpen() {
+  _cameraOpen = true;
+  // Save draft immediately when label is tapped (before OS takes over)
   if (document.getElementById('fModal').classList.contains('open')) {
     saveFormDraft();
   }
 }
-// Save on hide (Android + iOS)
+
+// iOS: app is SUSPENDED (not killed) — page does NOT reload.
+// We detect return via visibilitychange becoming 'visible'.
+// Android: app IS killed — page reloads. Handled in showApp() below.
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') _autoSaveDraft();
-});
-window.addEventListener('pagehide', _autoSaveDraft);
-
-// Android: save on blur (app loses focus to camera)
-window.addEventListener('blur', _autoSaveDraft);
-
-// iOS: restore when app regains focus (camera closed, PWA resumes)
-// iOS suspends PWA instead of killing it, so page doesn't reload — we need focus event
-window.addEventListener('focus', () => {
-  // Small delay — iOS needs a tick after resume before DOM is interactive
-  setTimeout(() => {
-    if (restoreFormDraft() && !document.getElementById('fModal').classList.contains('open')) {
-      openOv('fModal');
+  if (document.visibilityState === 'hidden') {
+    // Going to background — save draft as extra safety net
+    if (_cameraOpen && document.getElementById('fModal').classList.contains('open')) {
+      saveFormDraft();
     }
-  }, 300);
+  } else {
+    // Returning from background (iOS resume after camera)
+    if (_cameraOpen) {
+      _cameraOpen = false;
+      // Only restore on iOS (iOS doesn't reload the page)
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (isIOS) {
+        setTimeout(() => {
+          if (restoreFormDraft()) {
+            if (!document.getElementById('fModal').classList.contains('open')) {
+              openOv('fModal');
+            }
+          }
+        }, 350);
+      }
+    }
+  }
 });
 
-// iOS BFCache: page restored from cache after navigation
-window.addEventListener('pageshow', e => {
-  if (e.persisted) {
-    setTimeout(() => {
-      if (restoreFormDraft() && !document.getElementById('fModal').classList.contains('open')) {
-        openOv('fModal');
-      }
-    }, 300);
+// pagehide: final save before Android kills the page
+window.addEventListener('pagehide', () => {
+  if (_cameraOpen && document.getElementById('fModal').classList.contains('open')) {
+    saveFormDraft();
   }
 });
 
