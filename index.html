@@ -926,7 +926,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 </div>
 
 <div class="toast" id="toast"></div>
-<canvas id="cvs" style="display:none"></canvas>
+<!-- canvas removed: photo processing moved to server -->
 
 <script>
 'use strict';
@@ -934,59 +934,50 @@ const API = '/api';
 let editId = null, deleteId = null, activeVriezer = 0, gvOnly = false, isGV = true, photoData = null;
 
 // ── Photo ─────────────────────────────────────────────────
-function handlePhoto(e) {
+async function handlePhoto(e) {
   const file = e.target.files[0]; if (!file) return;
-  // Use createObjectURL — avoids loading entire file into memory as base64 string
-  const objectUrl = URL.createObjectURL(file);
-  const img = new Image();
-  img.onload = () => {
-    // Two-step downsampling: first halve in steps to avoid huge canvas, then final resize
-    const TARGET = 480;
-    let w = img.naturalWidth || img.width;
-    let h = img.naturalHeight || img.height;
 
-    // Step 1: halve repeatedly until close to target (avoids huge intermediate canvas)
-    let sw = w, sh = h;
-    while (sw > TARGET * 2 || sh > TARGET * 2) { sw = Math.round(sw / 2); sh = Math.round(sh / 2); }
+  // Show loading state
+  const btns = document.getElementById('photoBtns');
+  btns.innerHTML = '<div style="padding:.7rem;text-align:center;font-size:.8rem;color:var(--c-text3)">Foto verwerken…</div>';
 
-    // Step 2: final scale to fit TARGET
-    if (sw > TARGET || sh > TARGET) {
-      if (sw > sh) { sh = Math.round(sh * TARGET / sw); sw = TARGET; }
-      else { sw = Math.round(sw * TARGET / sh); sh = TARGET; }
-    }
+  try {
+    // Send raw file to server — server resizes with sharp (no canvas, no RAM crash)
+    const fd = new FormData();
+    fd.append('photo', file);
+    const r = await fetch(API + '/upload-photo', { method: 'POST', body: fd });
+    if (!r.ok) throw new Error('Server error ' + r.status);
+    const data = await r.json();
+    if (!data.foto) throw new Error('Geen foto in respons');
 
-    const c = document.getElementById('cvs');
-    c.width = sw; c.height = sh;
-    const ctx = c.getContext('2d');
-    ctx.drawImage(img, 0, 0, sw, sh);
-
-    // Release the object URL and image from memory immediately
-    URL.revokeObjectURL(objectUrl);
-    img.src = '';
-
-    photoData = c.toDataURL('image/jpeg', 0.72);
-    // Clear canvas to free memory
-    ctx.clearRect(0, 0, sw, sh);
-    c.width = 1; c.height = 1;
-
+    photoData = data.foto;
     setPhotoPreview(photoData);
-
-    // Camera returned — persist photo to draft immediately
-    // (Android may have reloaded page; form fields already restored from draft)
     _cameraOpen = false;
-    try { localStorage.setItem(DRAFT_KEY + '_photo', photoData); } catch(e) {}
-    // Update draft to mark photo present
+
+    // Persist to draft so Android page-reload can restore it
+    try { localStorage.setItem(DRAFT_KEY + '_photo', photoData); } catch(eIgnore) {}
     const existingDraft = localStorage.getItem(DRAFT_KEY);
     if (existingDraft) {
       try {
         const d = JSON.parse(existingDraft);
         d.hasPhoto = true; d.ts = Date.now();
         localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
-      } catch(e) {}
+      } catch(eIgnore) {}
     }
-  };
-  img.onerror = () => { URL.revokeObjectURL(objectUrl); toast('Foto laden mislukt', 'err'); };
-  img.src = objectUrl;
+  } catch(err) {
+    console.error('handlePhoto error:', err);
+    toast('Foto laden mislukt — probeer opnieuw', 'err');
+    // Restore buttons
+    btns.innerHTML = \`<label class="photo-btn-label" for="photoCamera" onclick="_markCameraOpen()">
+        <svg width="17" height="17"><use href="#ico-cam"/></svg>Camera
+      </label>
+      <label class="photo-btn-label" for="photoGallery" onclick="_markCameraOpen()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>Galerij
+      </label>\`;
+    btns.style.display = 'flex';
+  }
 }
 
 function setPhotoPreview(src) {

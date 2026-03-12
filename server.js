@@ -3,6 +3,11 @@ const session = require('express-session');
 const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
+const sharp = require('sharp');
+
+// Multer: memory storage, max 20MB raw (sharp will compress it down)
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
 const app = express();
 const PORT = 3000;
@@ -82,6 +87,24 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/auth/check', (req, res) => {
   res.json({ ok: !!(req.session && req.session.user) });
+});
+
+// ── Photo upload ─────────────────────────────────────────────
+app.post('/api/upload-photo', requireAuth, upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Geen foto ontvangen' });
+    // Resize to max 800px, convert to JPEG quality 75 — sharp is very memory-efficient
+    const resized = await sharp(req.file.buffer)
+      .rotate()               // auto-correct EXIF orientation (common on Android)
+      .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 75, mozjpeg: true })
+      .toBuffer();
+    const base64 = 'data:image/jpeg;base64,' + resized.toString('base64');
+    res.json({ ok: true, foto: base64 });
+  } catch (err) {
+    console.error('Photo upload error:', err);
+    res.status(500).json({ error: 'Foto verwerken mislukt' });
+  }
 });
 
 // ── Items API ─────────────────────────────────────────────────────
