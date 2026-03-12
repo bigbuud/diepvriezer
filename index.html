@@ -1108,10 +1108,13 @@ async function saveItem() {
 }
 
 function confirmDel() { deleteId = editId; closeOv('fModal'); setTimeout(() => openOv('dModal'), 140); }
-function quickDelete(e, id) {
+async function quickDelete(e, id) {
   e.stopPropagation();
-  deleteId = id;
-  openOv('dModal');
+  try {
+    await fetch(API + '/items/' + id, { method: 'DELETE' });
+    toast('Verwijderd', 'ok');
+    setTimeout(() => { loadItems(); loadStats(); }, 120);
+  } catch { toast('Verwijderen mislukt', 'err'); }
 }
 async function doDelete() {
   if (!deleteId) return;
