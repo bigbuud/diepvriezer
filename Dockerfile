@@ -15,7 +15,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY server.js .
 
 RUN mkdir -p /usr/share/nginx/html
-COPY index.html /usr/share/nginx/html/
+COPY index.html    /usr/share/nginx/html/
+COPY manifest.json /usr/share/nginx/html/
+COPY sw.js         /usr/share/nginx/html/
 
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/http.d/default.conf
