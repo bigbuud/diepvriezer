@@ -971,9 +971,19 @@ function handlePhoto(e) {
 
     setPhotoPreview(photoData);
 
-    // Camera returned successfully — clear flag and draft
+    // Camera returned — persist photo to draft immediately
+    // (Android may have reloaded page; form fields already restored from draft)
     _cameraOpen = false;
-    clearFormDraft();
+    try { localStorage.setItem(DRAFT_KEY + '_photo', photoData); } catch(e) {}
+    // Update draft to mark photo present
+    const existingDraft = localStorage.getItem(DRAFT_KEY);
+    if (existingDraft) {
+      try {
+        const d = JSON.parse(existingDraft);
+        d.hasPhoto = true; d.ts = Date.now();
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+      } catch(e) {}
+    }
   };
   img.onerror = () => { URL.revokeObjectURL(objectUrl); toast('Foto laden mislukt', 'err'); };
   img.src = objectUrl;
@@ -1109,7 +1119,7 @@ async function loadItems() {
 
 // ── Modal ─────────────────────────────────────────────────
 function openOv(id)  { document.getElementById(id).classList.add('open'); }
-function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); if (id === 'fModal') clearFormDraft(); }
 
 function setGV(val) {
   isGV = val;
@@ -1180,6 +1190,7 @@ async function saveItem() {
       else { toast('Fout bij opslaan ('+r.status+')', 'err'); }
       return;
     }
+    clearFormDraft(); // Remove draft only after successful save
     closeOv('fModal');
     toast(editId ? 'Opgeslagen' : 'Toegevoegd', 'ok');
     setTimeout(() => { loadItems(); loadStats(); }, 120);
@@ -1299,9 +1310,14 @@ function saveFormDraft() {
       datum:   document.getElementById('fDatum').value,
       note:    document.getElementById('fNote').value,
       isGV,
+      hasPhoto: !!photoData,
       ts:      Date.now()
     };
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    // Save photo separately (can be large — keep outside main draft object)
+    if (photoData) {
+      try { localStorage.setItem(DRAFT_KEY + '_photo', photoData); } catch(e) {}
+    }
   } catch(e) {}
 }
 
@@ -1323,13 +1339,24 @@ function restoreFormDraft() {
     document.getElementById('fNote').value    = d.note    || '';
     document.getElementById('btnDel').style.display = editId ? 'block' : 'none';
     setGV(!!d.isGV);
+    // Restore photo if it was saved
+    if (d.hasPhoto) {
+      try {
+        const savedPhoto = localStorage.getItem(DRAFT_KEY + '_photo');
+        if (savedPhoto) { photoData = savedPhoto; setPhotoPreview(savedPhoto); }
+      } catch(e) {}
+    }
     localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(DRAFT_KEY + '_photo');
     return true;
   } catch(e) { return false; }
 }
 
 function clearFormDraft() {
-  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(DRAFT_KEY + '_photo');
+  } catch(e) {}
 }
 
 // ── PWA ───────────────────────────────────────────────────
