@@ -7,518 +7,328 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vriezer">
-<meta name="theme-color" content="#0a1628">
+<meta name="theme-color" content="#0d1b3e">
 <title>Diepvriezer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy:      #0a1628;
-    --navy2:     #0f2040;
-    --navy3:     #162d55;
-    --ice:       #a8d8ea;
-    --ice-pale:  #dff0f8;
-    --frost:     #e8f4f8;
-    --white:     #f4fafd;
-    --accent:    #4fc3f7;
-    --accent2:   #81d4fa;
-    --gv:        #43e97b;
-    --ngv:       #f7797d;
-    --border:    rgba(168,216,234,0.15);
-    --border2:   rgba(168,216,234,0.08);
-    --glass:     rgba(15,32,64,0.7);
-    --text:      #e8f4f8;
-    --text-dim:  rgba(232,244,248,0.55);
-    --shadow:    0 4px 32px rgba(0,0,0,0.4);
-  }
+:root {
+  --sky-deep:   #0d1b3e;
+  --sky-mid:    #1a3a6b;
+  --sky-light:  #2d5fa6;
+  --aurora1:    #4ecdc4;
+  --aurora2:    #45b7d1;
+  --aurora3:    #96deda;
+  --ice-white:  #e8f4f8;
+  --ice-pale:   #c8e6f0;
+  --snow:       #f0f8ff;
+  --gv-green:   #52d98a;
+  --ngv-red:    #ff6b7a;
+  --glass-bg:   rgba(13,27,62,0.55);
+  --glass-bg2:  rgba(26,58,107,0.45);
+  --glass-border: rgba(200,230,240,0.18);
+  --glass-border2: rgba(200,230,240,0.08);
+  --text:       #e8f4f8;
+  --text-dim:   rgba(200,220,240,0.6);
+  --text-muted: rgba(200,220,240,0.35);
+  --shadow-deep: 0 8px 48px rgba(0,0,0,0.6);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.35);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:'Outfit',sans-serif; color:var(--text); overflow-x:hidden; }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--sky-deep);
+  position: relative;
+  min-height: 100vh;
+}
+body::before {
+  content:''; position:fixed; inset:0; z-index:0;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, #1e4d8c 0%, transparent 55%),
+    radial-gradient(ellipse 80%  40% at 0%   30%, #0a2d5e 0%, transparent 50%),
+    radial-gradient(ellipse 70%  50% at 100% 20%, #133566 0%, transparent 50%),
+    linear-gradient(180deg, #0d1b3e 0%, #122650 25%, #0f2248 50%, #0c1a38 70%, #06111f 85%, #040c17 100%);
+}
+body::after {
+  content:''; position:fixed; inset:0; z-index:0;
+  background:
+    radial-gradient(ellipse 60% 25% at 30% 15%, rgba(78,205,196,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 20% at 70% 10%, rgba(69,183,209,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 15% at 55% 20%, rgba(150,222,218,0.08) 0%, transparent 55%);
+  animation: aurora 12s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes aurora {
+  0%   { opacity:.7; transform:translateX(0) scaleY(1); }
+  50%  { opacity:1;  transform:translateX(2%) scaleY(1.1); }
+  100% { opacity:.8; transform:translateX(-2%) scaleY(.95); }
+}
+body > * { position:relative; z-index:1; }
+.landscape, .stars { z-index:0; }
 
-  body {
-    font-family: 'DM Mono', monospace;
-    background: var(--navy);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.stars::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:50%;
+  background-image:
+    radial-gradient(1px 1px at 10% 8%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 3%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 12%, rgba(255,255,255,.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 5%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 9%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 4%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 18%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 22%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 16%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 20%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 14%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 5% 25%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 28%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 30%, rgba(255,255,255,.5) 0%, transparent 100%);
+}
 
-  /* ── Frost background ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(79,195,247,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(129,212,250,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 60% at 50% 50%, rgba(10,22,40,0) 0%, rgba(10,22,40,0.4) 100%);
-    pointer-events: none;
-  }
+.landscape { position:fixed; bottom:0; left:0; right:0; z-index:0; pointer-events:none; }
 
-  body > * { position: relative; z-index: 1; }
+/* ── LOGIN ── */
+#loginScreen { display:none; position:fixed; inset:0; z-index:1000; align-items:center; justify-content:center; }
+#loginScreen.active { display:flex; }
+.login-box {
+  width:400px; padding:3rem 2.75rem;
+  background:var(--glass-bg); backdrop-filter:blur(24px);
+  border:1px solid var(--glass-border); border-radius:24px;
+  box-shadow:var(--shadow-deep), 0 0 80px rgba(78,205,196,.06);
+}
+.login-logo { text-align:center; margin-bottom:2.5rem; }
+.login-flake {
+  font-size:3.5rem; display:block; margin-bottom:.75rem;
+  filter:drop-shadow(0 0 20px rgba(78,205,196,.6));
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.login-logo h1 { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:700; color:var(--snow); line-height:1; }
+.login-logo h1 em { font-style:italic; background:linear-gradient(135deg,var(--aurora1),var(--aurora2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.login-logo p { color:var(--text-dim); font-size:.8rem; margin-top:.4rem; letter-spacing:.1em; text-transform:uppercase; }
+.lf { margin-bottom:1.1rem; }
+.lf label { display:block; font-size:.72rem; color:var(--text-dim); margin-bottom:.4rem; letter-spacing:.1em; text-transform:uppercase; font-weight:500; }
+.lf input { width:100%; padding:.8rem 1.1rem; background:rgba(200,230,240,.07); border:1px solid var(--glass-border); border-radius:12px; color:var(--text); font-family:'Outfit',sans-serif; font-size:.95rem; transition:all .2s; }
+.lf input:focus { outline:none; border-color:var(--aurora1); box-shadow:0 0 0 3px rgba(78,205,196,.1); }
+.login-btn { width:100%; padding:.9rem; background:linear-gradient(135deg,var(--aurora1),var(--aurora2)); color:var(--sky-deep); border:none; border-radius:12px; font-family:'Outfit',sans-serif; font-weight:700; font-size:1rem; cursor:pointer; margin-top:.5rem; transition:all .25s; letter-spacing:.03em; }
+.login-btn:hover { opacity:.9; transform:translateY(-2px); box-shadow:0 8px 24px rgba(78,205,196,.3); }
+.login-err { color:var(--ngv-red); font-size:.8rem; text-align:center; margin-top:.75rem; min-height:1.2em; }
 
-  /* ── LOGIN ── */
-  #loginScreen {
-    display: none;
-    position: fixed; inset: 0; z-index: 1000;
-    background: var(--navy);
-    align-items: center; justify-content: center;
-  }
-  #loginScreen.active { display: flex; }
+/* ── HEADER ── */
+header {
+  position:sticky; top:0; z-index:100;
+  background:rgba(10,22,50,.75); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--glass-border);
+  padding:0 2rem; height:68px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.h-brand { display:flex; align-items:center; gap:.75rem; }
+.h-flake { font-size:1.6rem; filter:drop-shadow(0 0 8px rgba(78,205,196,.5)); }
+.h-brand h1 { font-family:'Cormorant Garamond',serif; font-size:1.55rem; font-weight:700; color:var(--snow); letter-spacing:.02em; line-height:1; }
+.h-brand h1 em { font-style:italic; background:linear-gradient(135deg,var(--aurora1),var(--aurora2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.h-right { display:flex; align-items:center; gap:.9rem; }
+.btn-add { background:linear-gradient(135deg,var(--aurora1),var(--aurora2)); color:var(--sky-deep); border:none; border-radius:10px; padding:.55rem 1.25rem; font-family:'Outfit',sans-serif; font-weight:600; font-size:.88rem; cursor:pointer; transition:all .25s; display:flex; align-items:center; gap:5px; box-shadow:0 2px 12px rgba(78,205,196,.25); }
+.btn-add:hover { opacity:.9; transform:translateY(-1px); }
+.btn-logout { background:transparent; color:var(--text-muted); border:none; padding:.3rem .5rem; border-radius:8px; font-family:'Outfit',sans-serif; font-size:.72rem; cursor:pointer; transition:all .2s; }
+.btn-logout:hover { color:var(--text-dim); }
 
-  .login-box {
-    width: 360px;
-    padding: 3rem 2.5rem;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    box-shadow: var(--shadow), 0 0 60px rgba(79,195,247,0.05);
-  }
+/* ── MAIN ── */
+.wrap { max-width:1140px; margin:0 auto; padding:0 2rem 5rem; }
 
-  .login-logo {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  .login-logo .icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
-  .login-logo h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.6rem; font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--white);
-  }
-  .login-logo p { color: var(--text-dim); font-size: 0.78rem; margin-top: 0.25rem; }
+/* ── STATS ── */
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; padding:1.5rem 0 1rem; }
+.stat-card { background:var(--glass-bg); backdrop-filter:blur(16px); border:1px solid var(--glass-border); border-radius:18px; padding:1.2rem 1.4rem; transition:all .25s; position:relative; overflow:hidden; }
+.stat-card::after { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(200,230,240,.3),transparent); }
+.stat-card:hover { transform:translateY(-3px); border-color:rgba(200,230,240,.28); box-shadow:var(--shadow-card); }
+.stat-icon { font-size:1.6rem; margin-bottom:.6rem; display:block; }
+.stat-val { font-family:'Cormorant Garamond',serif; font-size:2.4rem; font-weight:700; line-height:1; color:var(--snow); }
+.stat-val.ca { background:linear-gradient(135deg,var(--aurora1),var(--aurora2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.stat-val.cg { color:var(--gv-green); }
+.stat-lbl { font-size:.72rem; color:var(--text-dim); margin-top:.3rem; text-transform:uppercase; letter-spacing:.08em; font-weight:500; }
 
-  .login-field { margin-bottom: 1rem; }
-  .login-field label { display: block; font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
-  .login-field input {
-    width: 100%; padding: 0.75rem 1rem;
-    background: rgba(168,216,234,0.06);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.9rem;
-    transition: border-color 0.2s;
-  }
-  .login-field input:focus { outline: none; border-color: var(--accent); }
+/* ── TABS ── */
+.fz-tabs { display:flex; gap:.6rem; margin-bottom:1.25rem; background:rgba(10,22,50,.4); backdrop-filter:blur(12px); border:1px solid var(--glass-border); border-radius:16px; padding:.4rem; width:fit-content; }
+.fz-tab { padding:.55rem 1.4rem; border-radius:12px; background:transparent; border:none; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:500; font-size:.9rem; color:var(--text-dim); transition:all .22s; display:flex; align-items:center; gap:6px; white-space:nowrap; }
+.fz-tab:hover { color:var(--text); }
+.fz-tab.active { background:var(--glass-bg2); border:1px solid var(--glass-border); color:var(--snow); box-shadow:0 2px 12px rgba(0,0,0,.3); }
+.fz-cnt { background:linear-gradient(135deg,var(--aurora1),var(--aurora2)); color:var(--sky-deep); border-radius:10px; padding:1px 7px; font-size:.68rem; font-weight:700; line-height:1.6; }
 
-  .login-btn {
-    width: 100%; padding: 0.85rem;
-    background: var(--accent); color: var(--navy);
-    border: none; border-radius: 10px;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
-    cursor: pointer; margin-top: 0.5rem; transition: all 0.2s;
-    letter-spacing: 0.02em;
-  }
-  .login-btn:hover { background: var(--accent2); transform: translateY(-1px); }
-  .login-error { color: var(--ngv); font-size: 0.78rem; text-align: center; margin-top: 0.75rem; min-height: 1em; }
+/* ── FILTERS ── */
+.filter-bar { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1.5rem; align-items:center; }
+.fi { flex:1; min-width:160px; max-width:260px; padding:.55rem 1rem; background:rgba(200,230,240,.07); border:1px solid var(--glass-border); border-radius:10px; color:var(--text); font-family:'Outfit',sans-serif; font-size:.85rem; transition:all .2s; }
+.fi:focus { outline:none; border-color:rgba(78,205,196,.5); box-shadow:0 0 0 3px rgba(78,205,196,.08); }
+.fi::placeholder { color:var(--text-muted); }
+.fs { padding:.55rem .85rem; background:rgba(200,230,240,.07); border:1px solid var(--glass-border); border-radius:10px; color:var(--text); font-family:'Outfit',sans-serif; font-size:.85rem; cursor:pointer; transition:all .2s; }
+.fs:focus { outline:none; border-color:rgba(78,205,196,.5); }
+.fs option { background:#0f2248; }
+.chip { padding:.5rem 1rem; border-radius:20px; border:1px solid var(--glass-border); background:transparent; color:var(--text-dim); font-family:'Outfit',sans-serif; font-size:.8rem; font-weight:500; cursor:pointer; transition:all .2s; }
+.chip:hover { border-color:var(--gv-green); color:var(--gv-green); }
+.chip.on { background:rgba(82,217,138,.12); border-color:rgba(82,217,138,.4); color:var(--gv-green); }
 
-  /* ── HEADER ── */
-  header {
-    background: rgba(10,22,40,0.9);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    height: 64px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
+/* ── GRID ── */
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
+.card { background:var(--glass-bg); backdrop-filter:blur(18px); border:1px solid var(--glass-border); border-radius:20px; padding:1.25rem 1.4rem; cursor:pointer; transition:all .25s; position:relative; overflow:hidden; display:flex; flex-direction:column; gap:10px; }
+.card::before { content:''; position:absolute; top:0; left:15%; right:15%; height:1px; background:linear-gradient(90deg,transparent,rgba(200,230,240,.5),transparent); opacity:.5; transition:opacity .2s; }
+.card::after { content:'❄'; position:absolute; top:10px; right:14px; font-size:.7rem; color:rgba(200,230,240,.12); transition:color .2s; }
+.card:hover { transform:translateY(-4px); border-color:rgba(200,230,240,.32); box-shadow:var(--shadow-card),0 0 30px rgba(78,205,196,.06); }
+.card:hover::before { opacity:1; }
+.card:hover::after  { color:rgba(200,230,240,.28); }
 
-  .header-left { display: flex; align-items: center; gap: 0.75rem; }
-  .header-icon { font-size: 1.5rem; }
-  .header-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.25rem; font-weight: 800;
-    letter-spacing: -0.02em; color: var(--white);
-  }
-  .header-title span { color: var(--accent); }
+.c-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.c-naam { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:600; color:var(--snow); line-height:1.2; flex:1; }
+.bdg { font-family:'Outfit',sans-serif; font-size:.62rem; font-weight:700; padding:3px 8px; border-radius:7px; letter-spacing:.06em; flex-shrink:0; margin-top:2px; }
+.bdg.gv  { background:rgba(82,217,138,.15);  color:var(--gv-green); border:1px solid rgba(82,217,138,.3); }
+.bdg.ngv { background:rgba(255,107,122,.12); color:var(--ngv-red);  border:1px solid rgba(255,107,122,.25); }
+.c-cat { font-size:.71rem; font-weight:600; color:var(--aurora1); text-transform:uppercase; letter-spacing:.1em; }
+.c-tags { display:flex; flex-wrap:wrap; gap:5px; }
+.tag { font-size:.74rem; padding:3px 9px; border-radius:8px; background:rgba(200,230,240,.07); border:1px solid var(--glass-border2); color:var(--text-dim); }
+.tag.qty { color:var(--aurora2); border-color:rgba(69,183,209,.2); background:rgba(69,183,209,.06); }
+.c-datum { font-size:.74rem; color:var(--text-muted); }
+.c-datum span { color:var(--ice-pale); }
+.c-note { font-size:.77rem; color:var(--text-dim); font-style:italic; border-top:1px solid var(--glass-border2); padding-top:8px; line-height:1.4; }
+.empty { grid-column:1/-1; text-align:center; padding:5rem 2rem; color:var(--text-muted); }
+.empty .big { font-size:4rem; display:block; margin-bottom:1.2rem; opacity:.3; }
+.empty p { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-style:italic; }
 
-  .header-right { display: flex; align-items: center; gap: 1rem; }
+/* ── MODAL ── */
+.ov { display:none; position:fixed; inset:0; z-index:500; background:rgba(5,12,30,.75); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:1rem; }
+.ov.open { display:flex; }
+.modal { background:linear-gradient(160deg,#0f2248 0%,#0a1a38 100%); border:1px solid var(--glass-border); border-radius:24px; padding:2.25rem; width:100%; max-width:500px; max-height:92vh; overflow-y:auto; box-shadow:var(--shadow-deep); position:relative; }
+.modal::before { content:''; position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,rgba(78,205,196,.5),transparent); }
+.modal h2 { font-family:'Cormorant Garamond',serif; font-size:1.55rem; font-weight:700; color:var(--snow); margin-bottom:1.6rem; }
+.r2 { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+.fg { margin-bottom:.9rem; }
+.fg label { display:block; font-size:.7rem; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.38rem; }
+.fg input,.fg select,.fg textarea { width:100%; padding:.7rem .9rem; background:rgba(200,230,240,.06); border:1px solid var(--glass-border); border-radius:10px; color:var(--text); font-family:'Outfit',sans-serif; font-size:.88rem; transition:all .2s; }
+.fg input:focus,.fg select:focus,.fg textarea:focus { outline:none; border-color:rgba(78,205,196,.5); box-shadow:0 0 0 3px rgba(78,205,196,.07); }
+.fg select option { background:#0f2248; }
+.fg textarea { resize:vertical; min-height:76px; }
+.gv-toggle { display:flex; border-radius:10px; overflow:hidden; border:1px solid var(--glass-border); }
+.gv-btn { flex:1; padding:.65rem .5rem; background:transparent; border:none; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; font-size:.82rem; color:var(--text-dim); transition:all .18s; }
+.gv-btn+.gv-btn { border-left:1px solid var(--glass-border); }
+.gv-btn.og { background:rgba(82,217,138,.15); color:var(--gv-green); }
+.gv-btn.on { background:rgba(255,107,122,.12); color:var(--ngv-red); }
+.m-actions { display:flex; gap:.7rem; margin-top:1.75rem; justify-content:flex-end; align-items:center; }
+.btn-save { background:linear-gradient(135deg,var(--aurora1),var(--aurora2)); color:var(--sky-deep); border:none; border-radius:10px; padding:.7rem 1.75rem; font-family:'Outfit',sans-serif; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; }
+.btn-save:hover { opacity:.9; transform:translateY(-1px); }
+.btn-cancel { background:transparent; color:var(--text-dim); border:1px solid var(--glass-border); border-radius:10px; padding:.7rem 1.2rem; font-family:'Outfit',sans-serif; font-size:.88rem; cursor:pointer; transition:all .2s; }
+.btn-cancel:hover { color:var(--text); }
+.btn-del { margin-right:auto; background:rgba(255,107,122,.1); color:var(--ngv-red); border:1px solid rgba(255,107,122,.2); border-radius:10px; padding:.7rem 1rem; font-family:'Outfit',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; transition:all .2s; }
+.btn-del:hover { background:rgba(255,107,122,.18); }
+.modal-c { max-width:380px; text-align:center; }
+.modal-c .bi { font-size:3rem; margin-bottom:.75rem; display:block; }
+.modal-c h2 { font-size:1.35rem; margin-bottom:.5rem; }
+.modal-c p { color:var(--text-dim); font-size:.84rem; margin-bottom:1.75rem; line-height:1.5; }
+.c-btns { display:flex; gap:.75rem; justify-content:center; }
+.btn-cd { background:var(--ngv-red); color:white; border:none; border-radius:10px; padding:.7rem 1.75rem; font-family:'Outfit',sans-serif; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; }
+.btn-cd:hover { opacity:.85; }
 
-  .btn-add {
-    background: var(--accent); color: var(--navy);
-    border: none; border-radius: 8px;
-    padding: 0.5rem 1.1rem;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem;
-    cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
-    display: flex; align-items: center; gap: 5px;
-  }
-  .btn-add:hover { background: var(--accent2); transform: translateY(-1px); }
+/* ── TOAST ── */
+.toast { position:fixed; bottom:1.75rem; right:1.75rem; z-index:3000; background:rgba(15,34,72,.95); backdrop-filter:blur(16px); border:1px solid var(--glass-border); color:var(--text); padding:.8rem 1.4rem; border-radius:12px; font-size:.85rem; font-weight:500; box-shadow:var(--shadow-card); opacity:0; transform:translateY(12px); transition:all .3s; pointer-events:none; }
+.toast.show { opacity:1; transform:translateY(0); }
+.toast.success { border-color:rgba(82,217,138,.35); }
+.toast.error   { border-color:rgba(255,107,122,.35); }
 
-  .btn-logout {
-    background: transparent; color: var(--text-dim);
-    border: none; padding: 0.3rem 0.5rem; border-radius: 6px;
-    font-family: 'DM Mono', monospace; font-size: 0.68rem;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .btn-logout:hover { color: var(--text); background: var(--border2); }
-
-  /* ── STATS ── */
-  .stats-bar {
-    display: grid; grid-template-columns: repeat(4,1fr);
-    gap: 1rem; padding: 1.25rem 2rem;
-    max-width: 1100px; margin: 0 auto;
-  }
-
-  .stat-card {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1rem 1.2rem;
-    backdrop-filter: blur(10px);
-    display: flex; flex-direction: column; gap: 4px;
-    transition: border-color 0.2s;
-  }
-  .stat-card:hover { border-color: rgba(168,216,234,0.3); }
-  .stat-label { font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
-  .stat-value { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--white); line-height: 1; }
-  .stat-value.accent { color: var(--accent); }
-  .stat-value.gv { color: var(--gv); }
-
-  /* ── FILTERS ── */
-  .filter-bar {
-    padding: 0 2rem 1rem;
-    max-width: 1100px; margin: 0 auto;
-    display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
-  }
-
-  .filter-search {
-    flex: 1; min-width: 180px; max-width: 280px;
-    padding: 0.5rem 0.9rem;
-    background: rgba(168,216,234,0.06);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem;
-    transition: border-color 0.2s;
-  }
-  .filter-search:focus { outline: none; border-color: var(--accent); }
-  .filter-search::placeholder { color: var(--text-dim); }
-
-  .filter-select {
-    padding: 0.5rem 0.75rem;
-    background: rgba(168,216,234,0.06);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem;
-    cursor: pointer; transition: border-color 0.2s;
-  }
-  .filter-select:focus { outline: none; border-color: var(--accent); }
-  .filter-select option { background: var(--navy2); }
-
-  .filter-chip {
-    padding: 0.45rem 0.85rem;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-dim); font-family: 'DM Mono', monospace; font-size: 0.78rem;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
-  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: var(--navy); font-weight: 500; }
-
-  /* ── VRIEZER TABS ── */
-  .vriezer-tabs {
-    padding: 0 2rem;
-    max-width: 1100px; margin: 0 auto 1rem;
-    display: flex; gap: 0.5rem;
-  }
-
-  .vriezer-tab {
-    padding: 0.6rem 1.5rem;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-dim); font-family: 'Syne', sans-serif;
-    font-size: 0.85rem; font-weight: 600;
-    cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .vriezer-tab:hover { border-color: var(--accent); color: var(--accent); }
-  .vriezer-tab.active {
-    background: var(--navy3); border-color: var(--accent);
-    color: var(--white);
-    box-shadow: 0 0 20px rgba(79,195,247,0.1);
-  }
-  .vriezer-tab .count {
-    background: var(--accent); color: var(--navy);
-    border-radius: 10px; padding: 1px 6px;
-    font-size: 0.7rem; font-weight: 700;
-  }
-  .vriezer-tab.active .count { background: rgba(79,195,247,0.3); color: var(--accent); }
-
-  /* ── GRID ── */
-  .items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1rem;
-    padding: 0 2rem 2rem;
-    max-width: 1100px; margin: 0 auto;
-  }
-
-  .item-card {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.1rem 1.2rem;
-    backdrop-filter: blur(10px);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex; flex-direction: column; gap: 8px;
-    position: relative; overflow: hidden;
-  }
-  .item-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .item-card:hover { border-color: rgba(168,216,234,0.3); transform: translateY(-2px); box-shadow: var(--shadow); }
-  .item-card:hover::before { opacity: 1; }
-
-  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-  .card-naam {
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem; font-weight: 700;
-    color: var(--white); line-height: 1.2;
-    flex: 1;
-  }
-  .badge-gv {
-    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
-    padding: 2px 7px; border-radius: 6px; flex-shrink: 0;
-  }
-  .badge-gv.gv  { background: rgba(67,233,123,0.15); color: var(--gv); border: 1px solid rgba(67,233,123,0.3); }
-  .badge-gv.ngv { background: rgba(247,121,125,0.12); color: var(--ngv); border: 1px solid rgba(247,121,125,0.25); }
-
-  .card-cat {
-    font-size: 0.7rem; color: var(--accent); text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-  .card-tag {
-    font-size: 0.72rem; color: var(--text-dim);
-    background: rgba(168,216,234,0.06);
-    border: 1px solid var(--border2);
-    border-radius: 6px; padding: 2px 8px;
-  }
-  .card-tag.hoeveelheid { color: var(--accent2); border-color: rgba(79,195,247,0.2); background: rgba(79,195,247,0.06); }
-
-  .card-datum { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
-  .card-notities { font-size: 0.75rem; color: var(--text-dim); font-style: italic; margin-top: 2px; border-top: 1px solid var(--border2); padding-top: 6px; }
-
-  .empty-state {
-    grid-column: 1/-1;
-    text-align: center; padding: 4rem 2rem;
-    color: var(--text-dim);
-  }
-  .empty-state .icon { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.4; }
-  .empty-state p { font-family: 'Syne', sans-serif; font-size: 1rem; }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; z-index: 500;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-    align-items: center; justify-content: center; padding: 1rem;
-  }
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: var(--navy2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2rem;
-    width: 100%; max-width: 480px;
-    max-height: 90vh; overflow-y: auto;
-    box-shadow: var(--shadow), 0 0 60px rgba(0,0,0,0.5);
-  }
-
-  .modal h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.2rem; font-weight: 800;
-    margin-bottom: 1.5rem; color: var(--white);
-  }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-
-  .form-group { margin-bottom: 0.9rem; }
-  .form-group label {
-    display: block; font-size: 0.68rem; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem;
-  }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 0.65rem 0.85rem;
-    background: rgba(168,216,234,0.05);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.85rem;
-    transition: border-color 0.2s;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: var(--accent);
-  }
-  .form-group select option { background: var(--navy2); }
-  .form-group textarea { resize: vertical; min-height: 72px; }
-
-  /* GV Toggle */
-  .gv-toggle { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-  .gv-btn {
-    flex: 1; padding: 0.6rem;
-    background: transparent;
-    border: none; cursor: pointer;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem;
-    color: var(--text-dim); transition: all 0.15s;
-  }
-  .gv-btn.active-gv  { background: rgba(67,233,123,0.2);  color: var(--gv); }
-  .gv-btn.active-ngv { background: rgba(247,121,125,0.15); color: var(--ngv); }
-
-  .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end; }
-
-  .btn-save {
-    background: var(--accent); color: var(--navy);
-    border: none; border-radius: 8px;
-    padding: 0.65rem 1.5rem;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .btn-save:hover { background: var(--accent2); }
-
-  .btn-cancel {
-    background: transparent; color: var(--text-dim);
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 0.65rem 1.2rem;
-    font-family: 'DM Mono', monospace; font-size: 0.85rem;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .btn-cancel:hover { color: var(--text); border-color: rgba(168,216,234,0.3); }
-
-  .btn-delete {
-    background: rgba(247,121,125,0.1); color: var(--ngv);
-    border: 1px solid rgba(247,121,125,0.2); border-radius: 8px;
-    padding: 0.65rem 1.1rem;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem;
-    cursor: pointer; transition: all 0.2s; margin-right: auto;
-  }
-  .btn-delete:hover { background: rgba(247,121,125,0.2); }
-
-  /* Confirm delete modal */
-  .confirm-modal { max-width: 360px; text-align: center; }
-  .confirm-modal .icon { font-size: 2.5rem; margin-bottom: 1rem; }
-  .confirm-modal h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
-  .confirm-modal p { color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1.5rem; }
-  .confirm-btns { display: flex; gap: 0.75rem; justify-content: center; }
-  .btn-confirm-delete {
-    background: var(--ngv); color: white;
-    border: none; border-radius: 8px; padding: 0.65rem 1.5rem;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .btn-confirm-delete:hover { opacity: 0.85; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000;
-    background: var(--navy3); border: 1px solid var(--border);
-    color: var(--text); padding: 0.75rem 1.2rem;
-    border-radius: 10px; font-size: 0.82rem;
-    box-shadow: var(--shadow);
-    opacity: 0; transform: translateY(10px);
-    transition: all 0.3s; pointer-events: none;
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.success { border-color: rgba(67,233,123,0.4); }
-  .toast.error   { border-color: rgba(247,121,125,0.4); }
-
-  /* ── MOBILE ── */
-  @media (max-width: 700px) {
-    header { padding: 0 1rem; height: 56px; }
-    .header-title { font-size: 1rem; }
-    .stats-bar { grid-template-columns: repeat(2,1fr); padding: 1rem; gap: 0.6rem; }
-    .stat-value { font-size: 1.4rem; }
-    .filter-bar { padding: 0 1rem 0.75rem; }
-    .vriezer-tabs { padding: 0 1rem; }
-    .items-grid { padding: 0 1rem 2rem; grid-template-columns: 1fr; }
-    .modal { padding: 1.5rem 1.25rem; border-radius: 16px 16px 0 0; align-self: flex-end; max-height: 95vh; }
-    .modal-overlay { align-items: flex-end; padding: 0; }
-    .form-row { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 480px) {
-    .btn-add span { display: none; }
-    .stats-bar { grid-template-columns: repeat(2,1fr); }
-  }
+/* ── MOBILE ── */
+@media(max-width:700px){
+  header{padding:0 1rem;height:58px;} .h-brand h1{font-size:1.25rem;}
+  .wrap{padding:0 1rem 3rem;}
+  .stats-row{grid-template-columns:repeat(2,1fr);padding:1rem 0;}
+  .stat-val{font-size:1.9rem;}
+  .grid{grid-template-columns:1fr;}
+  .ov{align-items:flex-end;padding:0;}
+  .modal{border-radius:20px 20px 0 0;align-self:flex-end;max-height:95vh;padding:1.75rem 1.5rem;}
+  .r2{grid-template-columns:1fr;}
+  .fz-tabs{flex-wrap:wrap;width:100%;}
+}
+@media(max-width:430px){.btn-add span{display:none;}}
 </style>
 </head>
 <body>
+
+<div class="stars"></div>
+
+<svg class="landscape" viewBox="0 0 1440 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="height:300px">
+  <defs>
+    <linearGradient id="mtn1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a1e4a" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#06111f" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="mtn2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d2455" stop-opacity="0.97"/>
+      <stop offset="100%" stop-color="#040c17" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="ice1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#122d6b" stop-opacity="0.98"/>
+      <stop offset="100%" stop-color="#040c17" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <!-- Far mountains -->
+  <path d="M0,240 L60,185 L130,215 L200,155 L270,195 L350,130 L420,175 L500,115 L580,160 L650,95 L730,145 L810,80 L880,130 L960,68 L1030,118 L1110,58 L1180,105 L1260,50 L1320,95 L1380,48 L1440,88 L1440,300 L0,300 Z" fill="url(#mtn1)"/>
+  <!-- Snow caps -->
+  <path d="M200,155 L220,170 L240,158 L260,175 L270,195 Z" fill="rgba(200,225,245,0.15)"/>
+  <path d="M500,115 L518,130 L535,118 L550,133 L580,160 Z" fill="rgba(200,225,245,0.12)"/>
+  <path d="M810,80 L828,96 L848,83 L865,100 L880,130 Z" fill="rgba(200,225,245,0.14)"/>
+  <path d="M1110,58 L1128,75 L1148,62 L1165,78 L1180,105 Z" fill="rgba(200,225,245,0.13)"/>
+  <!-- Mid mountains -->
+  <path d="M0,268 L80,225 L160,252 L250,192 L340,235 L430,168 L510,210 L610,145 L690,190 L780,128 L870,175 L950,112 L1040,160 L1130,98 L1210,145 L1300,88 L1370,130 L1440,105 L1440,300 L0,300 Z" fill="url(#mtn2)"/>
+  <!-- Glacier / ice plain -->
+  <path d="M0,290 L120,268 L250,278 L380,258 L510,272 L650,252 L790,268 L930,248 L1070,264 L1200,246 L1320,262 L1440,250 L1440,300 L0,300 Z" fill="url(#ice1)"/>
+  <!-- Ice shimmer -->
+  <path d="M0,292 L120,270 L250,280 L380,260 L510,274 L650,254 L790,270 L930,250 L1070,266 L1200,248 L1320,264 L1440,252 L1440,296 L0,296 Z" fill="rgba(150,210,235,0.055)"/>
+  <!-- Foreground snow -->
+  <rect x="0" y="295" width="1440" height="5" fill="rgba(200,230,245,0.07)"/>
+</svg>
 
 <!-- LOGIN -->
 <div id="loginScreen" class="active">
   <div class="login-box">
     <div class="login-logo">
-      <span class="icon">🧊</span>
-      <h1>Diep<span>vriezer</span></h1>
+      <span class="login-flake">❄️</span>
+      <h1>Diep<em>vriezer</em></h1>
       <p>Inventarisatie</p>
     </div>
-    <div class="login-field">
-      <label>Gebruikersnaam</label>
-      <input type="text" id="lUser" autocomplete="username" placeholder="gebruiker">
-    </div>
-    <div class="login-field">
-      <label>Wachtwoord</label>
-      <input type="password" id="lPass" autocomplete="current-password" placeholder="••••••">
-    </div>
+    <div class="lf"><label>Gebruikersnaam</label><input type="text" id="lUser" autocomplete="username" placeholder="gebruiker"></div>
+    <div class="lf"><label>Wachtwoord</label><input type="password" id="lPass" autocomplete="current-password" placeholder="••••••"></div>
     <button class="login-btn" onclick="doLogin()">Inloggen</button>
-    <div class="login-error" id="loginError"></div>
+    <div class="login-err" id="loginErr"></div>
   </div>
 </div>
 
 <!-- HEADER -->
 <header id="appHeader" style="display:none">
-  <div class="header-left">
-    <span class="header-icon">🧊</span>
-    <span class="header-title">Diep<span>vriezer</span></span>
+  <div class="h-brand">
+    <span class="h-flake">❄️</span>
+    <h1>Diep<em>vriezer</em></h1>
   </div>
-  <div class="header-right">
+  <div class="h-right">
     <button class="btn-add" onclick="openAdd()">+ <span>Toevoegen</span></button>
     <button class="btn-logout" onclick="doLogout()">uitloggen</button>
   </div>
 </header>
 
-<!-- MAIN -->
-<main id="appMain" style="display:none">
+<!-- APP -->
+<div id="appMain" style="display:none">
+<div class="wrap">
 
-  <!-- STATS -->
-  <div class="stats-bar">
-    <div class="stat-card">
-      <span class="stat-label">Totaal items</span>
-      <span class="stat-value accent" id="sTotaal">0</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-label">Vriezer 1</span>
-      <span class="stat-value" id="sVriezer1">0</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-label">Vriezer 2</span>
-      <span class="stat-value" id="sVriezer2">0</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-label">Glutenvrij</span>
-      <span class="stat-value gv" id="sGV">0</span>
-    </div>
+  <div class="stats-row">
+    <div class="stat-card"><span class="stat-icon">🧊</span><div class="stat-val ca" id="sTotaal">0</div><div class="stat-lbl">Totaal items</div></div>
+    <div class="stat-card"><span class="stat-icon">🟦</span><div class="stat-val" id="sBosch">0</div><div class="stat-lbl">Bosch</div></div>
+    <div class="stat-card"><span class="stat-icon">⬜</span><div class="stat-val" id="sKist">0</div><div class="stat-lbl">Kist</div></div>
+    <div class="stat-card"><span class="stat-icon">🌿</span><div class="stat-val cg" id="sGV">0</div><div class="stat-lbl">Glutenvrij</div></div>
   </div>
 
-  <!-- VRIEZER TABS -->
-  <div class="vriezer-tabs">
-    <button class="vriezer-tab active" data-vriezer="0" onclick="setVriezer(0, this)">
-      ❄️ Alle vriezers
-    </button>
-    <button class="vriezer-tab" data-vriezer="1" onclick="setVriezer(1, this)">
-      🧊 Vriezer 1 <span class="count" id="tab1count">0</span>
-    </button>
-    <button class="vriezer-tab" data-vriezer="2" onclick="setVriezer(2, this)">
-      🧊 Vriezer 2 <span class="count" id="tab2count">0</span>
-    </button>
+  <div class="fz-tabs">
+    <button class="fz-tab active" onclick="setVriezer(0,this)">❄️ Alle vriezers</button>
+    <button class="fz-tab" onclick="setVriezer(1,this)">🟦 Bosch <span class="fz-cnt" id="cBosch">0</span></button>
+    <button class="fz-tab" onclick="setVriezer(2,this)">⬜ Kist <span class="fz-cnt" id="cKist">0</span></button>
   </div>
 
-  <!-- FILTERS -->
   <div class="filter-bar">
-    <input class="filter-search" type="text" id="fZoek" placeholder="🔍 zoeken…" oninput="loadItems()">
-    <select class="filter-select" id="fCatFilter" onchange="loadItems()">
+    <input class="fi" type="text" id="fZoek" placeholder="🔍  zoeken…" oninput="loadItems()">
+    <select class="fs" id="fCatF" onchange="loadItems()">
       <option value="">Alle categorieën</option>
       <option value="vlees">🥩 Vlees</option>
       <option value="vis">🐟 Vis</option>
@@ -532,379 +342,231 @@
       <option value="ijs">🍦 IJs/desserts</option>
       <option value="overige">📦 Overige</option>
     </select>
-    <select class="filter-select" id="fSorteer" onchange="loadItems()">
+    <select class="fs" id="fSort" onchange="loadItems()">
       <option value="datum">Datum (nieuwste)</option>
       <option value="naam">Naam A→Z</option>
       <option value="categorie">Categorie</option>
     </select>
-    <button class="filter-chip" id="chipGV" onclick="toggleGVFilter()">❄️ Alleen GV</button>
+    <button class="chip" id="chipGV" onclick="toggleGV()">🌿 Alleen glutenvrij</button>
   </div>
 
-  <!-- GRID -->
-  <div class="items-grid" id="itemsGrid"></div>
+  <div class="grid" id="grid"></div>
 
-</main>
+</div>
+</div>
 
 <!-- FORM MODAL -->
-<div class="modal-overlay" id="formModal">
-  <div class="modal">
-    <h2 id="formTitle">Item toevoegen</h2>
-
-    <div class="form-row">
-      <div class="form-group" style="grid-column:1/-1">
-        <label>Naam *</label>
-        <input type="text" id="fNaam" placeholder="bv. kipfilet, spinazie…">
-      </div>
+<div class="ov" id="fModal">
+<div class="modal">
+  <h2 id="fTitle">Item toevoegen</h2>
+  <div class="fg"><label>Naam *</label><input type="text" id="fNaam" placeholder="bv. kipfilet, bladspinazie…"></div>
+  <div class="r2">
+    <div class="fg"><label>Categorie *</label>
+      <select id="fCat">
+        <option value="vlees">🥩 Vlees</option><option value="vis">🐟 Vis</option>
+        <option value="groenten">🥦 Groenten</option><option value="fruit">🍓 Fruit</option>
+        <option value="snacks">🍟 Snacks</option><option value="soepen">🍲 Soepen</option>
+        <option value="brood">🍞 Brood/gebak</option><option value="maaltijden">🍽️ Kant-en-klaar</option>
+        <option value="zuivel">🧀 Zuivel/eieren</option><option value="ijs">🍦 IJs/desserts</option>
+        <option value="overige">📦 Overige</option>
+      </select>
     </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Categorie *</label>
-        <select id="fCat">
-          <option value="vlees">🥩 Vlees</option>
-          <option value="vis">🐟 Vis</option>
-          <option value="groenten">🥦 Groenten</option>
-          <option value="fruit">🍓 Fruit</option>
-          <option value="snacks">🍟 Snacks</option>
-          <option value="soepen">🍲 Soepen</option>
-          <option value="brood">🍞 Brood/gebak</option>
-          <option value="maaltijden">🍽️ Kant-en-klaar</option>
-          <option value="zuivel">🧀 Zuivel/eieren</option>
-          <option value="ijs">🍦 IJs/desserts</option>
-          <option value="overige">📦 Overige</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Vriezer</label>
-        <select id="fVriezer">
-          <option value="1">🧊 Vriezer 1</option>
-          <option value="2">🧊 Vriezer 2</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Hoeveelheid</label>
-        <input type="text" id="fHoeveelheid" placeholder="bv. 500">
-      </div>
-      <div class="form-group">
-        <label>Eenheid</label>
-        <select id="fEenheid">
-          <option value="">–</option>
-          <option value="g">gram (g)</option>
-          <option value="kg">kilogram (kg)</option>
-          <option value="ml">milliliter (ml)</option>
-          <option value="l">liter (l)</option>
-          <option value="stuks">stuks</option>
-          <option value="zakjes">zakjes</option>
-          <option value="dozen">dozen</option>
-          <option value="porties">porties</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Datum ingevroren</label>
-      <input type="date" id="fDatum">
-    </div>
-
-    <div class="form-group">
-      <label>Gluten</label>
-      <div class="gv-toggle">
-        <button class="gv-btn active-gv" id="btnGV"  onclick="setGV(true)">✓ GV — Glutenvrij</button>
-        <button class="gv-btn" id="btnNGV" onclick="setGV(false)">✗ NGV — Niet glutenvrij</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Notities</label>
-      <textarea id="fNotities" placeholder="Merk, herkomst, bereidingstips…"></textarea>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-delete" id="btnDelete" style="display:none" onclick="confirmDelete()">Verwijderen</button>
-      <button class="btn-cancel" onclick="closeModal('formModal')">Annuleren</button>
-      <button class="btn-save" onclick="saveItem()">Opslaan</button>
+    <div class="fg"><label>Vriezer</label>
+      <select id="fVriezer"><option value="1">🟦 Bosch</option><option value="2">⬜ Kist</option></select>
     </div>
   </div>
+  <div class="r2">
+    <div class="fg"><label>Hoeveelheid</label><input type="text" id="fHoev" placeholder="bv. 500"></div>
+    <div class="fg"><label>Eenheid</label>
+      <select id="fEenh">
+        <option value="">–</option><option value="g">gram</option><option value="kg">kilogram</option>
+        <option value="ml">milliliter</option><option value="l">liter</option>
+        <option value="stuks">stuks</option><option value="zakjes">zakjes</option>
+        <option value="dozen">dozen</option><option value="porties">porties</option>
+      </select>
+    </div>
+  </div>
+  <div class="fg"><label>Datum ingevroren</label><input type="date" id="fDatum"></div>
+  <div class="fg"><label>Gluten</label>
+    <div class="gv-toggle">
+      <button class="gv-btn og" id="bGV"  onclick="setGV(true)">✓ GV — Glutenvrij</button>
+      <button class="gv-btn"    id="bNGV" onclick="setGV(false)">✗ NGV — Niet glutenvrij</button>
+    </div>
+  </div>
+  <div class="fg"><label>Notities</label><textarea id="fNote" placeholder="Merk, herkomst, bereidingstips…"></textarea></div>
+  <div class="m-actions">
+    <button class="btn-del" id="bDel" style="display:none" onclick="confirmDel()">Verwijderen</button>
+    <button class="btn-cancel" onclick="closeOv('fModal')">Annuleren</button>
+    <button class="btn-save" onclick="saveItem()">Opslaan</button>
+  </div>
+</div>
 </div>
 
 <!-- DELETE CONFIRM -->
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal confirm-modal">
-    <div class="icon">🗑️</div>
-    <h2>Item verwijderen?</h2>
-    <p>Dit item wordt permanent verwijderd uit de inventarisatie.</p>
-    <div class="confirm-btns">
-      <button class="btn-cancel" onclick="closeModal('deleteModal')">Annuleren</button>
-      <button class="btn-confirm-delete" onclick="doDelete()">Verwijderen</button>
-    </div>
+<div class="ov" id="dModal">
+<div class="modal modal-c">
+  <span class="bi">🗑️</span>
+  <h2>Item verwijderen?</h2>
+  <p>Dit item wordt permanent verwijderd uit de inventarisatie.</p>
+  <div class="c-btns">
+    <button class="btn-cancel" onclick="closeOv('dModal')">Annuleren</button>
+    <button class="btn-cd" onclick="doDelete()">Verwijderen</button>
   </div>
 </div>
+</div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-const API = '/api';
-let editId = null;
-let deleteId = null;
-let activeVriezer = 0;
-let gvFilter = false;
-let isGV = true;
+const API='/api';
+let editId=null,deleteId=null,activeVriezer=0,gvOnly=false,isGV=true;
 
-// ── Auth ──────────────────────────────────────────────────────────
-async function checkAuth() {
-  try {
-    const r = await fetch(`${API}/auth/check`);
-    const d = await r.json();
-    if (d.ok) showApp();
-    else showLogin();
-  } catch { showLogin(); }
+async function checkAuth(){
+  try{ const d=await(await fetch(`${API}/auth/check`)).json(); d.ok?showApp():showLogin(); }
+  catch{ showLogin(); }
 }
-
-function showLogin() {
+function showLogin(){
   document.getElementById('loginScreen').classList.add('active');
-  document.getElementById('appHeader').style.display = 'none';
-  document.getElementById('appMain').style.display = 'none';
-  setTimeout(() => document.getElementById('lUser').focus(), 100);
+  document.getElementById('appHeader').style.display='none';
+  document.getElementById('appMain').style.display='none';
+  setTimeout(()=>document.getElementById('lUser').focus(),150);
 }
-
-function showApp() {
+function showApp(){
   document.getElementById('loginScreen').classList.remove('active');
-  document.getElementById('appHeader').style.display = 'flex';
-  document.getElementById('appMain').style.display = 'block';
-  loadStats();
+  document.getElementById('appHeader').style.display='flex';
+  document.getElementById('appMain').style.display='block';
+  loadStats(); loadItems();
+}
+async function doLogin(){
+  const u=document.getElementById('lUser').value.trim(), p=document.getElementById('lPass').value;
+  document.getElementById('loginErr').textContent='';
+  try{
+    const r=await fetch(`${API}/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({gebruiker:u,wachtwoord:p})});
+    r.ok?showApp():(document.getElementById('loginErr').textContent='Onjuiste gegevens');
+  }catch{ document.getElementById('loginErr').textContent='Verbindingsfout'; }
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('loginScreen').classList.contains('active')) doLogin(); });
+async function doLogout(){ await fetch(`${API}/logout`,{method:'POST'}); showLogin(); }
+
+async function loadStats(){
+  try{
+    const d=await(await fetch(`${API}/statistieken`)).json();
+    document.getElementById('sTotaal').textContent=d.totaal;
+    document.getElementById('sBosch').textContent=d.vriezer1;
+    document.getElementById('sKist').textContent=d.vriezer2;
+    document.getElementById('sGV').textContent=d.gv;
+    document.getElementById('cBosch').textContent=d.vriezer1;
+    document.getElementById('cKist').textContent=d.vriezer2;
+  }catch{}
+}
+
+function setVriezer(n,el){
+  activeVriezer=n;
+  document.querySelectorAll('.fz-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); loadItems();
+}
+function toggleGV(){
+  gvOnly=!gvOnly;
+  document.getElementById('chipGV').classList.toggle('on',gvOnly);
   loadItems();
 }
 
-async function doLogin() {
-  const gebruiker = document.getElementById('lUser').value.trim();
-  const wachtwoord = document.getElementById('lPass').value;
-  document.getElementById('loginError').textContent = '';
-  try {
-    const r = await fetch(`${API}/login`, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ gebruiker, wachtwoord })
-    });
-    if (r.ok) showApp();
-    else document.getElementById('loginError').textContent = 'Onjuiste gebruikersnaam of wachtwoord';
-  } catch { document.getElementById('loginError').textContent = 'Verbindingsfout'; }
+const CATE={vlees:'🥩 Vlees',vis:'🐟 Vis',groenten:'🥦 Groenten',fruit:'🍓 Fruit',snacks:'🍟 Snacks',soepen:'🍲 Soepen',brood:'🍞 Brood/gebak',maaltijden:'🍽️ Kant-en-klaar',zuivel:'🧀 Zuivel/eieren',ijs:'🍦 IJs/desserts',overige:'📦 Overige'};
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fd(d){if(!d)return null;const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}
+
+async function loadItems(){
+  const params=new URLSearchParams({sorteer:document.getElementById('fSort').value});
+  if(activeVriezer) params.set('vriezer',activeVriezer);
+  const cat=document.getElementById('fCatF').value; if(cat) params.set('categorie',cat);
+  const zoek=document.getElementById('fZoek').value; if(zoek) params.set('zoek',zoek);
+  if(gvOnly) params.set('glutenvrij','1');
+  try{
+    const items=await(await fetch(`${API}/items?${params}`)).json();
+    const g=document.getElementById('grid');
+    if(!items.length){g.innerHTML=`<div class="empty"><span class="big">🧊</span><p>Geen items gevonden</p></div>`;return;}
+    g.innerHTML=items.map(i=>{
+      const vl=i.vriezer===1?'🟦 Bosch':'⬜ Kist';
+      const badge=i.glutenvrij?`<span class="bdg gv">GV</span>`:`<span class="bdg ngv">NGV</span>`;
+      const qty=i.hoeveelheid?`<span class="tag qty">⚖️ ${esc(i.hoeveelheid)}${i.eenheid?' '+esc(i.eenheid):''}</span>`:'';
+      const datum=i.datum_ingevroren?`<div class="c-datum">❄️ ingevroren <span>${fd(i.datum_ingevroren)}</span></div>`:'';
+      const note=i.notities?`<div class="c-note">${esc(i.notities)}</div>`:'';
+      return`<div class="card" onclick="openEdit(${i.id})">
+        <div class="c-head"><div class="c-naam">${CATE[i.categorie]?.split(' ')[0]||'📦'} ${esc(i.naam)}</div>${badge}</div>
+        <div class="c-cat">${(CATE[i.categorie]||i.categorie).replace(/^[^\s]+\s/,'')}</div>
+        <div class="c-tags"><span class="tag">${vl}</span>${qty}</div>
+        ${datum}${note}
+      </div>`;
+    }).join('');
+  }catch{}
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) doLogin();
-});
+function openOv(id){document.getElementById(id).classList.add('open');}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
 
-async function doLogout() {
-  await fetch(`${API}/logout`, { method: 'POST' });
-  showLogin();
+function setGV(val){
+  isGV=val;
+  document.getElementById('bGV').className='gv-btn'+(val?' og':'');
+  document.getElementById('bNGV').className='gv-btn'+(!val?' on':'');
 }
 
-// ── Stats ─────────────────────────────────────────────────────────
-async function loadStats() {
-  try {
-    const d = await (await fetch(`${API}/statistieken`)).json();
-    document.getElementById('sTotaal').textContent   = d.totaal;
-    document.getElementById('sVriezer1').textContent = d.vriezer1;
-    document.getElementById('sVriezer2').textContent = d.vriezer2;
-    document.getElementById('sGV').textContent       = d.gv;
-    document.getElementById('tab1count').textContent = d.vriezer1;
-    document.getElementById('tab2count').textContent = d.vriezer2;
-  } catch {}
+function openAdd(){
+  editId=null;
+  document.getElementById('fTitle').textContent='Item toevoegen';
+  document.getElementById('fNaam').value='';
+  document.getElementById('fCat').value='vlees';
+  document.getElementById('fVriezer').value=activeVriezer||'1';
+  document.getElementById('fHoev').value='';
+  document.getElementById('fEenh').value='';
+  document.getElementById('fDatum').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fNote').value='';
+  document.getElementById('bDel').style.display='none';
+  setGV(true); openOv('fModal');
+  setTimeout(()=>document.getElementById('fNaam').focus(),300);
 }
-
-// ── Filters ───────────────────────────────────────────────────────
-function setVriezer(n, el) {
-  activeVriezer = n;
-  document.querySelectorAll('.vriezer-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  loadItems();
+async function openEdit(id){
+  try{
+    const i=await(await fetch(`${API}/items/${id}`)).json();
+    editId=id;
+    document.getElementById('fTitle').textContent='Item bewerken';
+    document.getElementById('fNaam').value=i.naam||'';
+    document.getElementById('fCat').value=i.categorie||'vlees';
+    document.getElementById('fVriezer').value=i.vriezer||'1';
+    document.getElementById('fHoev').value=i.hoeveelheid||'';
+    document.getElementById('fEenh').value=i.eenheid||'';
+    document.getElementById('fDatum').value=i.datum_ingevroren||'';
+    document.getElementById('fNote').value=i.notities||'';
+    document.getElementById('bDel').style.display='block';
+    setGV(!!i.glutenvrij); openOv('fModal');
+  }catch{ toast('Fout bij laden','error'); }
 }
-
-function toggleGVFilter() {
-  gvFilter = !gvFilter;
-  document.getElementById('chipGV').classList.toggle('active', gvFilter);
-  loadItems();
+async function saveItem(){
+  const naam=document.getElementById('fNaam').value.trim();
+  if(!naam){toast('Naam is verplicht','error');return;}
+  const body={naam,categorie:document.getElementById('fCat').value,vriezer:parseInt(document.getElementById('fVriezer').value),glutenvrij:isGV,hoeveelheid:document.getElementById('fHoev').value.trim(),eenheid:document.getElementById('fEenh').value,datum_ingevroren:document.getElementById('fDatum').value||null,notities:document.getElementById('fNote').value.trim()};
+  try{
+    await fetch(editId?`${API}/items/${editId}`:`${API}/items`,{method:editId?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    closeOv('fModal'); toast(editId?'Opgeslagen ✓':'Toegevoegd ✓','success');
+    setTimeout(()=>{loadItems();loadStats();},150);
+  }catch{ toast('Fout bij opslaan','error'); }
 }
-
-// ── Load items ────────────────────────────────────────────────────
-const CATEGORIE_EMOJI = {
-  vlees:'🥩', vis:'🐟', groenten:'🥦', fruit:'🍓', snacks:'🍟',
-  soepen:'🍲', brood:'🍞', maaltijden:'🍽️', zuivel:'🧀', ijs:'🍦', overige:'📦'
-};
-const CATEGORIE_NAAM = {
-  vlees:'Vlees', vis:'Vis', groenten:'Groenten', fruit:'Fruit', snacks:'Snacks',
-  soepen:'Soepen', brood:'Brood/gebak', maaltijden:'Kant-en-klaar',
-  zuivel:'Zuivel/eieren', ijs:'IJs/desserts', overige:'Overige'
-};
-
-function formatDatum(d) {
-  if (!d) return null;
-  const [y,m,dd] = d.split('-');
-  return `${dd}/${m}/${y}`;
+function confirmDel(){deleteId=editId;closeOv('fModal');setTimeout(()=>openOv('dModal'),150);}
+async function doDelete(){
+  if(!deleteId)return;
+  try{
+    await fetch(`${API}/items/${deleteId}`,{method:'DELETE'});
+    closeOv('dModal'); deleteId=null; toast('Verwijderd','success');
+    setTimeout(()=>{loadItems();loadStats();},150);
+  }catch{ toast('Fout bij verwijderen','error'); }
 }
-
-async function loadItems() {
-  const zoek = document.getElementById('fZoek').value;
-  const cat  = document.getElementById('fCatFilter').value;
-  const sort = document.getElementById('fSorteer').value;
-  const params = new URLSearchParams({ sorteer: sort });
-  if (activeVriezer) params.set('vriezer', activeVriezer);
-  if (cat)  params.set('categorie', cat);
-  if (zoek) params.set('zoek', zoek);
-  if (gvFilter) params.set('glutenvrij', '1');
-
-  try {
-    const items = await (await fetch(`${API}/items?${params}`)).json();
-    renderGrid(items);
-  } catch {}
+let tt;
+function toast(msg,type='success'){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=`toast ${type} show`;
+  clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('show'),2600);
 }
-
-function renderGrid(items) {
-  const grid = document.getElementById('itemsGrid');
-  if (!items.length) {
-    grid.innerHTML = `<div class="empty-state"><span class="icon">🧊</span><p>Geen items gevonden</p></div>`;
-    return;
-  }
-  grid.innerHTML = items.map(renderCard).join('');
-}
-
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function renderCard(item) {
-  const emoji = CATEGORIE_EMOJI[item.categorie] || '📦';
-  const catNaam = CATEGORIE_NAAM[item.categorie] || item.categorie;
-  const gvBadge = item.glutenvrij
-    ? `<span class="badge-gv gv">GV</span>`
-    : `<span class="badge-gv ngv">NGV</span>`;
-  const hoeveelheid = item.hoeveelheid
-    ? `<span class="card-tag hoeveelheid">⚖️ ${esc(item.hoeveelheid)}${item.eenheid ? ' '+esc(item.eenheid) : ''}</span>`
-    : '';
-  const vriezerTag = `<span class="card-tag">🧊 Vriezer ${item.vriezer}</span>`;
-  const datum = item.datum_ingevroren
-    ? `<div class="card-datum">❄️ ingevroren ${formatDatum(item.datum_ingevroren)}</div>` : '';
-  const notities = item.notities
-    ? `<div class="card-notities">${esc(item.notities)}</div>` : '';
-
-  return `
-    <div class="item-card" onclick="openEdit(${item.id})">
-      <div class="card-top">
-        <div class="card-naam">${emoji} ${esc(item.naam)}</div>
-        ${gvBadge}
-      </div>
-      <div class="card-cat">${catNaam}</div>
-      <div class="card-meta">${vriezerTag}${hoeveelheid}</div>
-      ${datum}
-      ${notities}
-    </div>`;
-}
-
-// ── Modal ─────────────────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function setGV(val) {
-  isGV = val;
-  document.getElementById('btnGV').className  = 'gv-btn' + (val  ? ' active-gv'  : '');
-  document.getElementById('btnNGV').className = 'gv-btn' + (!val ? ' active-ngv' : '');
-}
-
-function openAdd() {
-  editId = null;
-  document.getElementById('formTitle').textContent = 'Item toevoegen';
-  document.getElementById('fNaam').value = '';
-  document.getElementById('fCat').value = 'vlees';
-  document.getElementById('fVriezer').value = activeVriezer || '1';
-  document.getElementById('fHoeveelheid').value = '';
-  document.getElementById('fEenheid').value = '';
-  document.getElementById('fDatum').value = new Date().toISOString().split('T')[0];
-  document.getElementById('fNotities').value = '';
-  document.getElementById('btnDelete').style.display = 'none';
-  setGV(true);
-  openModal('formModal');
-  setTimeout(() => document.getElementById('fNaam').focus(), 300);
-}
-
-async function openEdit(id) {
-  try {
-    const item = await (await fetch(`${API}/items/${id}`)).json();
-    editId = id;
-    document.getElementById('formTitle').textContent = 'Item bewerken';
-    document.getElementById('fNaam').value = item.naam || '';
-    document.getElementById('fCat').value = item.categorie || 'vlees';
-    document.getElementById('fVriezer').value = item.vriezer || '1';
-    document.getElementById('fHoeveelheid').value = item.hoeveelheid || '';
-    document.getElementById('fEenheid').value = item.eenheid || '';
-    document.getElementById('fDatum').value = item.datum_ingevroren || '';
-    document.getElementById('fNotities').value = item.notities || '';
-    document.getElementById('btnDelete').style.display = 'block';
-    setGV(!!item.glutenvrij);
-    openModal('formModal');
-  } catch { toast('Fout bij laden', 'error'); }
-}
-
-async function saveItem() {
-  const naam = document.getElementById('fNaam').value.trim();
-  if (!naam) { toast('Naam is verplicht', 'error'); return; }
-
-  const body = {
-    naam,
-    categorie: document.getElementById('fCat').value,
-    vriezer: parseInt(document.getElementById('fVriezer').value),
-    glutenvrij: isGV,
-    hoeveelheid: document.getElementById('fHoeveelheid').value.trim(),
-    eenheid: document.getElementById('fEenheid').value,
-    datum_ingevroren: document.getElementById('fDatum').value || null,
-    notities: document.getElementById('fNotities').value.trim(),
-  };
-
-  try {
-    const url = editId ? `${API}/items/${editId}` : `${API}/items`;
-    const method = editId ? 'PUT' : 'POST';
-    await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    closeModal('formModal');
-    toast(editId ? 'Item bijgewerkt ✓' : 'Item toegevoegd ✓', 'success');
-    setTimeout(() => { loadItems(); loadStats(); }, 150);
-  } catch { toast('Fout bij opslaan', 'error'); }
-}
-
-function confirmDelete() {
-  deleteId = editId;
-  closeModal('formModal');
-  setTimeout(() => openModal('deleteModal'), 150);
-}
-
-async function doDelete() {
-  if (!deleteId) return;
-  try {
-    await fetch(`${API}/items/${deleteId}`, { method: 'DELETE' });
-    closeModal('deleteModal');
-    deleteId = null;
-    toast('Item verwijderd', 'success');
-    setTimeout(() => { loadItems(); loadStats(); }, 150);
-  } catch { toast('Fout bij verwijderen', 'error'); }
-}
-
-// ── Toast ─────────────────────────────────────────────────────────
-let toastTimer;
-function toast(msg, type='success') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = `toast ${type} show`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
-}
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
-});
-
-// Start
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 checkAuth();
 </script>
 </body>
