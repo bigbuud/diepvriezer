@@ -505,7 +505,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
   transition:background .15s; user-select:none; -webkit-user-select:none;
   border:none; background:transparent;
 }
-.photo-btn-label:first-child { border-right:none; }
+.photo-btn-label:not(:first-child) { border-left:1px solid var(--c-line); }
 .photo-btn-label:hover, .photo-btn-label:active { background:rgba(30,95,160,.06); }
 .photo-btn-label svg { color:var(--c-muted); flex-shrink:0; }
 /* Hide the actual inputs — labels still trigger them */
@@ -828,12 +828,21 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     <div class="fg">
       <label>Foto</label>
       <div class="photo-zone" id="photoZone">
-        <!-- Single input — iOS shows native action sheet (camera / library / browse), Android shows picker -->
-        <input class="photo-input" type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)">
+        <!-- Camera input: capture="environment" → direct camera on Android/iOS -->
+        <input class="photo-input" type="file" id="photoCamera" name="photo_camera" accept="image/*" capture="environment" onchange="handlePhoto(event)">
+        <!-- Gallery input: no capture → file picker / gallery -->
+        <input class="photo-input" type="file" id="photoGallery" name="photo_gallery" accept="image/*" onchange="handlePhoto(event)">
         <div class="photo-btns" id="photoBtns">
-          <label class="photo-btn-label" for="photoFile">
-            <svg width="18" height="18"><use href="#ico-cam"/></svg>
-            Foto toevoegen
+          <label class="photo-btn-label" for="photoCamera" onclick="saveFormDraft()">
+            <svg width="17" height="17"><use href="#ico-cam"/></svg>
+            Camera
+          </label>
+          <label class="photo-btn-label" for="photoGallery" onclick="saveFormDraft()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Galerij
           </label>
         </div>
         <!-- Preview shown after selection -->
@@ -927,20 +936,46 @@ let editId = null, deleteId = null, activeVriezer = 0, gvOnly = false, isGV = tr
 // ── Photo ─────────────────────────────────────────────────
 function handlePhoto(e) {
   const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX = 480; let w = img.width, h = img.height;
-      if (w > MAX || h > MAX) { if (w > h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
-      const c = document.getElementById('cvs'); c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      photoData = c.toDataURL('image/jpeg', 0.65);
-      setPhotoPreview(photoData);
-    };
-    img.src = ev.target.result;
+  // Use createObjectURL — avoids loading entire file into memory as base64 string
+  const objectUrl = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    // Two-step downsampling: first halve in steps to avoid huge canvas, then final resize
+    const TARGET = 480;
+    let w = img.naturalWidth || img.width;
+    let h = img.naturalHeight || img.height;
+
+    // Step 1: halve repeatedly until close to target (avoids huge intermediate canvas)
+    let sw = w, sh = h;
+    while (sw > TARGET * 2 || sh > TARGET * 2) { sw = Math.round(sw / 2); sh = Math.round(sh / 2); }
+
+    // Step 2: final scale to fit TARGET
+    if (sw > TARGET || sh > TARGET) {
+      if (sw > sh) { sh = Math.round(sh * TARGET / sw); sw = TARGET; }
+      else { sw = Math.round(sw * TARGET / sh); sh = TARGET; }
+    }
+
+    const c = document.getElementById('cvs');
+    c.width = sw; c.height = sh;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0, sw, sh);
+
+    // Release the object URL and image from memory immediately
+    URL.revokeObjectURL(objectUrl);
+    img.src = '';
+
+    photoData = c.toDataURL('image/jpeg', 0.72);
+    // Clear canvas to free memory
+    ctx.clearRect(0, 0, sw, sh);
+    c.width = 1; c.height = 1;
+
+    setPhotoPreview(photoData);
+
+    // Restore form state from localStorage if page was reloaded by OS
+    clearFormDraft();
   };
-  reader.readAsDataURL(file);
+  img.onerror = () => { URL.revokeObjectURL(objectUrl); toast('Foto laden mislukt', 'err'); };
+  img.src = objectUrl;
 }
 
 function setPhotoPreview(src) {
@@ -956,7 +991,8 @@ function clearPhoto() {
   document.getElementById('photoPreviewWrap').classList.remove('show');
   document.getElementById('photoBtns').style.display = 'flex';
   document.getElementById('photoZone').classList.remove('has-photo');
-  document.getElementById('photoFile').value = '';
+  document.getElementById('photoCamera').value  = '';
+  document.getElementById('photoGallery').value = '';
 }
 
 function resetPhoto() {
@@ -979,6 +1015,12 @@ function showApp() {
   document.getElementById('header').classList.add('show');
   document.getElementById('app').classList.add('show');
   loadStats(); loadItems();
+  // Restore form if Android OS killed app during camera use (page reloaded)
+  // iOS is handled separately via focus/pageshow events
+  const isAndroid = /android/i.test(navigator.userAgent);
+  if (isAndroid && restoreFormDraft()) {
+    setTimeout(() => openOv('fModal'), 400);
+  }
 }
 async function doLogin() {
   const u = document.getElementById('lUser').value.trim(), p = document.getElementById('lPass').value;
@@ -1237,10 +1279,99 @@ function autoFillCategorie(naam) {
   }
 }
 
+
+// ── Form draft — survives PWA camera lifecycle reload ─────────────────────
+// When OS kills the PWA to free RAM for the camera, we restore the form on return.
+const DRAFT_KEY = 'vriezer_form_draft';
+
+function saveFormDraft() {
+  try {
+    const draft = {
+      editId,
+      naam:    document.getElementById('fNaam').value,
+      cat:     document.getElementById('fCat').value,
+      vriezer: document.getElementById('fVriezer').value,
+      hoev:    document.getElementById('fHoev').value,
+      eenh:    document.getElementById('fEenh').value,
+      datum:   document.getElementById('fDatum').value,
+      note:    document.getElementById('fNote').value,
+      isGV,
+      ts:      Date.now()
+    };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) {}
+}
+
+function restoreFormDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    // Only restore if draft is fresh (< 5 min old)
+    if (!d || Date.now() - d.ts > 10 * 60 * 1000) { localStorage.removeItem(DRAFT_KEY); return false; }
+    editId = d.editId || null;
+    document.getElementById('mTitle').textContent = editId ? 'Item bewerken' : 'Item toevoegen';
+    document.getElementById('fNaam').value    = d.naam    || '';
+    document.getElementById('fCat').value     = d.cat     || 'vlees';
+    document.getElementById('fVriezer').value = d.vriezer || '1';
+    document.getElementById('fHoev').value    = d.hoev    || '';
+    document.getElementById('fEenh').value    = d.eenh    || '';
+    document.getElementById('fDatum').value   = d.datum   || '';
+    document.getElementById('fNote').value    = d.note    || '';
+    document.getElementById('btnDel').style.display = editId ? 'block' : 'none';
+    setGV(!!d.isGV);
+    localStorage.removeItem(DRAFT_KEY);
+    return true;
+  } catch(e) { return false; }
+}
+
+function clearFormDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
 // ── PWA ───────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 }
+
+// Android may kill the app at ANY point when camera opens.
+// Save draft on every possible exit event, not just on label click.
+function _autoSaveDraft() {
+  // Only save if the form modal is actually open
+  if (document.getElementById('fModal').classList.contains('open')) {
+    saveFormDraft();
+  }
+}
+// Save on hide (Android + iOS)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') _autoSaveDraft();
+});
+window.addEventListener('pagehide', _autoSaveDraft);
+
+// Android: save on blur (app loses focus to camera)
+window.addEventListener('blur', _autoSaveDraft);
+
+// iOS: restore when app regains focus (camera closed, PWA resumes)
+// iOS suspends PWA instead of killing it, so page doesn't reload — we need focus event
+window.addEventListener('focus', () => {
+  // Small delay — iOS needs a tick after resume before DOM is interactive
+  setTimeout(() => {
+    if (restoreFormDraft() && !document.getElementById('fModal').classList.contains('open')) {
+      openOv('fModal');
+    }
+  }, 300);
+});
+
+// iOS BFCache: page restored from cache after navigation
+window.addEventListener('pageshow', e => {
+  if (e.persisted) {
+    setTimeout(() => {
+      if (restoreFormDraft() && !document.getElementById('fModal').classList.contains('open')) {
+        openOv('fModal');
+      }
+    }, 300);
+  }
+});
 
 // Handle ?add=1 shortcut (from PWA shortcut)
 if (new URL(location.href).searchParams.get('add') === '1') {
