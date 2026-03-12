@@ -25,9 +25,12 @@ db.exec(`
     eenheid TEXT,
     datum_ingevroren TEXT,
     notities TEXT,
+    foto TEXT,
     toegevoegd_op TEXT DEFAULT (date('now'))
   );
 `);
+// Migration: add foto column if not exists
+try { db.exec('ALTER TABLE items ADD COLUMN foto TEXT'); } catch(e) {}
 
 // ── Auth ──────────────────────────────────────────────────────────
 const APP_USER = process.env.APP_USER || 'admin';
@@ -95,21 +98,21 @@ app.get('/api/items/:id', requireAuth, (req, res) => {
 });
 
 app.post('/api/items', requireAuth, (req, res) => {
-  const { naam, categorie, vriezer, glutenvrij, hoeveelheid, eenheid, datum_ingevroren, notities } = req.body;
+  const { naam, categorie, vriezer, glutenvrij, hoeveelheid, eenheid, datum_ingevroren, notities, foto } = req.body;
   if (!naam || !categorie) return res.status(400).json({ error: 'Naam en categorie zijn verplicht' });
   const r = db.prepare(`
-    INSERT INTO items (naam, categorie, vriezer, glutenvrij, hoeveelheid, eenheid, datum_ingevroren, notities)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(naam, categorie, vriezer||1, glutenvrij?1:0, hoeveelheid||null, eenheid||null, datum_ingevroren||null, notities||null);
+    INSERT INTO items (naam, categorie, vriezer, glutenvrij, hoeveelheid, eenheid, datum_ingevroren, notities, foto)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(naam, categorie, vriezer||1, glutenvrij?1:0, hoeveelheid||null, eenheid||null, datum_ingevroren||null, notities||null, foto||null);
   res.json({ id: r.lastInsertRowid });
 });
 
 app.put('/api/items/:id', requireAuth, (req, res) => {
-  const { naam, categorie, vriezer, glutenvrij, hoeveelheid, eenheid, datum_ingevroren, notities } = req.body;
+  const { naam, categorie, vriezer, glutenvrij, hoeveelheid, eenheid, datum_ingevroren, notities, foto } = req.body;
   db.prepare(`
-    UPDATE items SET naam=?, categorie=?, vriezer=?, glutenvrij=?, hoeveelheid=?, eenheid=?, datum_ingevroren=?, notities=?
+    UPDATE items SET naam=?, categorie=?, vriezer=?, glutenvrij=?, hoeveelheid=?, eenheid=?, datum_ingevroren=?, notities=?, foto=?
     WHERE id=?
-  `).run(naam, categorie, vriezer||1, glutenvrij?1:0, hoeveelheid||null, eenheid||null, datum_ingevroren||null, notities||null, req.params.id);
+  `).run(naam, categorie, vriezer||1, glutenvrij?1:0, hoeveelheid||null, eenheid||null, datum_ingevroren||null, notities||null, foto||null, req.params.id);
   res.json({ ok: true });
 });
 
