@@ -36,7 +36,7 @@ try { db.exec('ALTER TABLE items ADD COLUMN foto TEXT'); } catch(e) {}
 const APP_USER = process.env.APP_USER || 'admin';
 const APP_PASS = process.env.APP_PASSWORD || 'admin';
 
-app.use(express.json());
+app.use(express.json({ limit: '4mb' }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'diepvriezer-secret-' + Math.random(),
   resave: false,
