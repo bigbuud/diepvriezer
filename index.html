@@ -457,33 +457,34 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 .gv-seg-btn.sel-ngv { background:rgba(160,32,32,.05);  color:var(--c-ngv); font-weight:500; }
 
 /* photo upload */
-.photo-field {
-  border:1.5px dashed var(--c-line);
-  border-radius:var(--r-md); overflow:hidden;
-  cursor:pointer; transition:border-color .18s;
-  position:relative; background:var(--c-bg);
-  min-height:52px;
+.photo-zone { border-radius:var(--r-md); overflow:hidden; background:var(--c-bg); border:1.5px dashed var(--c-line); }
+/* The two label-buttons side by side */
+.photo-btns { display:flex; gap:0; }
+.photo-btn-label {
+  flex:1; display:flex; align-items:center; justify-content:center; gap:.45rem;
+  padding:.75rem .5rem; cursor:pointer;
+  font-family:var(--font-sans); font-size:.8rem; font-weight:400; color:var(--c-text2);
+  transition:background .15s; user-select:none; -webkit-user-select:none;
+  border:none; background:transparent;
 }
-.photo-field:hover { border-color:var(--c-blue2); }
-.photo-field.filled { border-style:solid; border-color:var(--c-line); }
-.photo-field input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0; z-index:2; touch-action:manipulation; }
-.photo-field.filled input[type=file] { display:none; }
-.photo-placeholder {
-  display:flex; align-items:center; gap:.7rem;
-  padding:.75rem 1rem; pointer-events:none;
-}
-.photo-placeholder svg { color:var(--c-pale); flex-shrink:0; }
-.photo-placeholder-txt { font-size:.78rem; color:var(--c-text3); line-height:1.4; }
-.photo-placeholder-txt strong { display:block; font-weight:500; color:var(--c-text2); font-size:.8rem; }
+.photo-btn-label:first-child { border-right:1px solid var(--c-line); }
+.photo-btn-label:hover, .photo-btn-label:active { background:rgba(30,95,160,.06); }
+.photo-btn-label svg { color:var(--c-muted); flex-shrink:0; }
+/* Hide the actual inputs — labels still trigger them */
+.photo-input { display:none; }
+/* Preview state */
+.photo-preview-wrap { display:none; position:relative; }
+.photo-preview-wrap.show { display:block; }
 .photo-preview { width:100%; height:140px; object-fit:cover; display:block; }
 .photo-clear {
-  position:absolute; top:6px; right:6px; z-index:2;
+  position:absolute; top:6px; right:6px;
   background:rgba(255,255,255,.92); border:1px solid var(--c-line);
-  border-radius:6px; padding:2px 8px;
+  border-radius:6px; padding:3px 9px;
   font-size:.68rem; font-weight:500; color:var(--c-ngv);
   cursor:pointer; transition:background .15s;
 }
 .photo-clear:hover { background:rgba(160,32,32,.08); }
+.photo-zone.has-photo { border-style:solid; }
 
 /* modal footer */
 .modal-footer {
@@ -781,17 +782,29 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     <!-- Photo -->
     <div class="fg">
       <label>Foto</label>
-      <div class="photo-field" id="photoField">
-        <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)">
-        <div class="photo-placeholder" id="photoPh">
-          <svg width="22" height="22"><use href="#ico-cam"/></svg>
-          <div class="photo-placeholder-txt">
-            <strong>Foto toevoegen</strong>
-            Camera of galerij kiezen
-          </div>
+      <div class="photo-zone" id="photoZone">
+        <!-- Two hidden inputs triggered by their labels — works on all mobile browsers -->
+        <input class="photo-input" type="file" id="photoCamera"  accept="image/*" capture="environment" onchange="handlePhoto(event)">
+        <input class="photo-input" type="file" id="photoGallery" accept="image/*" onchange="handlePhoto(event)">
+        <!-- Buttons: labels that directly trigger the inputs -->
+        <div class="photo-btns" id="photoBtns">
+          <label class="photo-btn-label" for="photoCamera">
+            <svg width="18" height="18"><use href="#ico-cam"/></svg>
+            Camera
+          </label>
+          <label class="photo-btn-label" for="photoGallery">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Galerij
+          </label>
         </div>
-        <img id="photoPreview" class="photo-preview" style="display:none" alt="">
-        <button class="photo-clear" id="photoClear" style="display:none" onclick="clearPhoto(event)">✕ Verwijder</button>
+        <!-- Preview shown after selection -->
+        <div class="photo-preview-wrap" id="photoPreviewWrap">
+          <img id="photoPreview" class="photo-preview" alt="">
+          <button class="photo-clear" onclick="clearPhoto()">✕ Verwijder</button>
+        </div>
       </div>
     </div>
 
@@ -887,36 +900,28 @@ function handlePhoto(e) {
       const c = document.getElementById('cvs'); c.width = w; c.height = h;
       c.getContext('2d').drawImage(img, 0, 0, w, h);
       photoData = c.toDataURL('image/jpeg', 0.65);
-      setPhotoPreview(photoData);
+      document.getElementById('photoPreview').src = photoData;
+      document.getElementById('photoPreviewWrap').classList.add('show');
+      document.getElementById('photoBtns').style.display = 'none';
+      document.getElementById('photoZone').classList.add('has-photo');
     };
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-function setPhotoPreview(src) {
-  const f = document.getElementById('photoField'), ph = document.getElementById('photoPh'),
-        pv = document.getElementById('photoPreview'), cl = document.getElementById('photoClear');
-  f.classList.add('filled'); ph.style.display = 'none';
-  pv.src = src; pv.style.display = 'block'; cl.style.display = 'block';
-}
-
-function clearPhoto(e) {
-  e.stopPropagation(); photoData = null;
-  const f = document.getElementById('photoField'), ph = document.getElementById('photoPh'),
-        pv = document.getElementById('photoPreview'), cl = document.getElementById('photoClear');
-  f.classList.remove('filled'); ph.style.display = 'flex';
-  pv.src = ''; pv.style.display = 'none'; cl.style.display = 'none';
-  document.getElementById('photoInput').value = '';
+function clearPhoto() {
+  photoData = null;
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('photoPreviewWrap').classList.remove('show');
+  document.getElementById('photoBtns').style.display = 'flex';
+  document.getElementById('photoZone').classList.remove('has-photo');
+  document.getElementById('photoCamera').value = '';
+  document.getElementById('photoGallery').value = '';
 }
 
 function resetPhoto() {
-  photoData = null;
-  document.getElementById('photoField').classList.remove('filled');
-  document.getElementById('photoPh').style.display = 'flex';
-  const pv = document.getElementById('photoPreview'); pv.src = ''; pv.style.display = 'none';
-  document.getElementById('photoClear').style.display = 'none';
-  document.getElementById('photoInput').value = '';
+  clearPhoto();
 }
 
 // ── Auth ──────────────────────────────────────────────────
