@@ -435,7 +435,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 .modal-scroll { overflow-y:auto; flex:1; padding:.9rem 1.25rem; }
 
 /* ── form fields ── */
-.fg { margin-bottom:.6rem; }
+.fg { margin-bottom:.45rem; }
 .fg label {
   display:block; font-size:.67rem; font-weight:500;
   color:var(--c-text3); text-transform:uppercase;
@@ -452,20 +452,42 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
   outline:none; border-color:var(--c-blue2);
   background:#fff; box-shadow:0 0 0 3px rgba(30,95,160,.08);
 }
-.fg textarea { resize:vertical; min-height:64px; line-height:1.5; }
+.fg textarea { resize:vertical; min-height:48px; line-height:1.4; }
 .fg select option { background:#fff; }
 .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
 
-/* GV segment */
-.gv-seg { display:flex; border-radius:var(--r-sm); overflow:hidden; border:1.5px solid var(--c-line); }
-.gv-seg-btn {
-  flex:1; padding:.58rem .5rem; background:transparent; border:none; cursor:pointer;
-  font-family:var(--font-sans); font-weight:400; font-size:.78rem; color:var(--c-text3);
-  transition:all .15s; display:flex; align-items:center; justify-content:center; gap:5px;
+/* GV toggle row */
+.gv-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.45rem .8rem; border-radius:var(--r-sm);
+  border:1.5px solid var(--c-line); background:var(--c-bg);
+  transition:border-color .18s;
 }
-.gv-seg-btn + .gv-seg-btn { border-left:1.5px solid var(--c-line); }
-.gv-seg-btn.sel-gv  { background:rgba(24,104,64,.08); color:var(--c-gv); font-weight:500; }
-.gv-seg-btn.sel-ngv { background:rgba(160,32,32,.05);  color:var(--c-ngv); font-weight:500; }
+.gv-row.is-gv  { border-color:rgba(24,104,64,.3);  background:rgba(24,104,64,.04); }
+.gv-row.is-ngv { border-color:rgba(160,32,32,.2); background:rgba(160,32,32,.03); }
+.gv-label {
+  display:flex; align-items:center; gap:6px;
+  font-family:var(--font-sans); font-size:.82rem; font-weight:500;
+  transition:color .18s;
+}
+.gv-label.is-gv  { color:var(--c-gv); }
+.gv-label.is-ngv { color:var(--c-ngv); }
+.gv-label.is-nil { color:var(--c-text3); }
+/* toggle switch */
+.gv-toggle { position:relative; width:40px; height:22px; flex-shrink:0; cursor:pointer; }
+.gv-toggle input { opacity:0; width:0; height:0; position:absolute; }
+.gv-slider {
+  position:absolute; inset:0; border-radius:11px;
+  background:rgba(160,32,32,.18); transition:background .2s;
+}
+.gv-slider::before {
+  content:''; position:absolute; width:16px; height:16px; border-radius:50%;
+  left:3px; top:3px; background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+  transition:transform .2s;
+}
+.gv-toggle input:checked + .gv-slider { background:var(--c-gv); }
+.gv-toggle input:checked + .gv-slider::before { transform:translateX(18px); }
 
 /* photo upload */
 .photo-zone { border-radius:var(--r-md); overflow:hidden; background:var(--c-bg); border:1.5px dashed var(--c-line); }
@@ -473,7 +495,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 .photo-btns { display:flex; gap:0; }
 .photo-btn-label {
   flex:1; display:flex; align-items:center; justify-content:center; gap:.45rem;
-  padding:.75rem .5rem; cursor:pointer;
+  padding:.55rem .5rem; cursor:pointer;
   font-family:var(--font-sans); font-size:.8rem; font-weight:400; color:var(--c-text2);
   transition:background .15s; user-select:none; -webkit-user-select:none;
   border:none; background:transparent;
@@ -486,7 +508,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 /* Preview state */
 .photo-preview-wrap { display:none; position:relative; }
 .photo-preview-wrap.show { display:block; }
-.photo-preview { width:100%; height:140px; object-fit:cover; display:block; }
+.photo-preview { width:100%; height:110px; object-fit:cover; display:block; }
 .photo-clear {
   position:absolute; top:6px; right:6px;
   background:rgba(255,255,255,.92); border:1px solid var(--c-line);
@@ -564,7 +586,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
   .grid2 { grid-template-columns:1fr; }
   .seg-wrap { flex-wrap:wrap; width:100%; }
   .overlay { align-items:flex-end; padding:0; }
-  .modal { border-radius:var(--r-lg) var(--r-lg) 0 0; max-height:96vh; align-self:flex-end; }
+  .modal { border-radius:var(--r-lg) var(--r-lg) 0 0; max-height:88vh; align-self:flex-end; }
 }
 @media (max-width:380px) {
   .btn-add-header .add-label { display:none; }
@@ -817,7 +839,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
       </div>
     </div>
 
-    <div class="fg"><label>Naam</label><input type="text" id="fNaam" placeholder="bv. kipfilet, erwtensoep…" oninput="autoFillCategorie(this.value)"></div>
+    <div class="fg"><label>Naam</label><input type="text" id="fNaam" placeholder="bv. kipfilet, erwtensoep…" oninput="autoFillCategorie(this.value)" autocorrect="on" autocapitalize="sentences" spellcheck="true"></div>
     <div class="grid2">
       <div class="fg"><label>Categorie</label>
         <select id="fCat">
@@ -849,15 +871,15 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     </div>
     <div class="fg"><label>Datum ingevroren</label><input type="date" id="fDatum"></div>
     <div class="fg">
-      <label>Gluten</label>
-      <div class="gv-seg">
-        <button class="gv-seg-btn sel-gv" id="btnGV" onclick="setGV(true)">
-          <svg width="12" height="12" viewBox="0 0 28 28" color="currentColor"><use href="#ico-gv"/></svg>
-          GV — Glutenvrij
-        </button>
-        <button class="gv-seg-btn" id="btnNGV" onclick="setGV(false)">
-          NGV — Niet glutenvrij
-        </button>
+      <div class="gv-row" id="gvRow">
+        <div class="gv-label is-nil" id="gvLabel">
+          <svg width="14" height="14" viewBox="0 0 32 32" color="currentColor"><use href="#ico-gv"/></svg>
+          <span id="gvText">Glutenvrij</span>
+        </div>
+        <label class="gv-toggle">
+          <input type="checkbox" id="gvCheck" onchange="setGVToggle(this.checked)">
+          <span class="gv-slider"></span>
+        </label>
       </div>
     </div>
     <div class="fg"><label>Notities</label><textarea id="fNote" placeholder="Merk, herkomst, tips…"></textarea></div>
@@ -1041,9 +1063,16 @@ function closeOv(id) { document.getElementById(id).classList.remove('open'); }
 
 function setGV(val) {
   isGV = val;
-  document.getElementById('btnGV').className  = 'gv-seg-btn' + (val  ? ' sel-gv'  : '');
-  document.getElementById('btnNGV').className = 'gv-seg-btn' + (!val ? ' sel-ngv' : '');
+  const chk = document.getElementById('gvCheck');
+  const row = document.getElementById('gvRow');
+  const lbl = document.getElementById('gvLabel');
+  const txt = document.getElementById('gvText');
+  chk.checked = val;
+  row.className = 'gv-row ' + (val ? 'is-gv' : 'is-ngv');
+  lbl.className = 'gv-label ' + (val ? 'is-gv' : 'is-ngv');
+  txt.textContent = val ? 'Glutenvrij' : 'Niet glutenvrij';
 }
+function setGVToggle(checked) { setGV(checked); }
 
 function openAdd() {
   editId = null;
