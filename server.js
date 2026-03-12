@@ -37,11 +37,26 @@ const APP_USER = process.env.APP_USER || 'admin';
 const APP_PASS = process.env.APP_PASSWORD || 'admin';
 
 app.use(express.json({ limit: '4mb' }));
+// Persist session secret so container restarts don't invalidate cookies
+const SECRET_FILE = path.join(DATA_DIR, '.session-secret');
+let SESSION_SECRET;
+try {
+  SESSION_SECRET = fs.readFileSync(SECRET_FILE, 'utf8').trim();
+} catch {
+  SESSION_SECRET = require('crypto').randomBytes(32).toString('hex');
+  fs.writeFileSync(SECRET_FILE, SESSION_SECRET);
+}
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'diepvriezer-secret-' + Math.random(),
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 8 * 60 * 60 * 1000 }
+  cookie: {
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    sameSite: 'lax',
+    secure: false,   // HTTP (no HTTPS on local network)
+    httpOnly: true
+  }
 }));
 
 function requireAuth(req, res, next) {
