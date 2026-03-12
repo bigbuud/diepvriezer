@@ -336,56 +336,67 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 ══════════════════════════════════════════ */
 .item-grid {
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-  gap:.75rem;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:.5rem;
 }
 
 .item-card {
   background:var(--c-surface); border:1px solid var(--c-line);
-  border-radius:var(--r-lg); overflow:hidden;
-  cursor:pointer; transition:transform .22s, box-shadow .22s, border-color .22s;
-  box-shadow:var(--shadow-sm); display:flex; flex-direction:column;
+  border-radius:var(--r-md); overflow:hidden;
+  cursor:pointer; transition:box-shadow .2s, border-color .2s;
+  box-shadow:var(--shadow-sm); display:flex; flex-direction:row;
+  align-items:stretch; min-height:64px;
 }
-.item-card:hover {
-  transform:translateY(-3px);
-  box-shadow:var(--shadow-md);
-  border-color:rgba(30,95,160,.14);
+.item-card:hover { box-shadow:var(--shadow-md); border-color:rgba(30,95,160,.18); }
+.item-card:active { background:rgba(11,40,76,.02); }
+
+/* Delete button on left */
+.card-del {
+  display:flex; align-items:center; justify-content:center;
+  width:44px; flex-shrink:0;
+  background:rgba(160,32,32,.055); border-right:1px solid var(--c-line);
+  color:rgba(160,32,32,.5); transition:all .18s;
 }
+.card-del:hover, .card-del:active { background:rgba(160,32,32,.12); color:var(--c-ngv); }
+.card-del svg { pointer-events:none; }
 
-.card-photo { width:100%; height:116px; object-fit:cover; background:var(--c-ice); display:block; }
+/* Photo thumbnail on left (when present) */
+.card-photo { width:72px; min-height:64px; object-fit:cover; background:var(--c-ice); display:block; flex-shrink:0; }
 
-.card-content { padding:.9rem 1rem; display:flex; flex-direction:column; gap:6px; flex:1; }
+.card-content { padding:.52rem .75rem; display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; justify-content:center; }
 
-.card-row1 { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }
+.card-row1 { display:flex; align-items:center; justify-content:space-between; gap:6px; }
 .card-name {
-  font-family:var(--font-serif); font-size:1rem; font-weight:600;
+  font-family:var(--font-serif); font-size:.9rem; font-weight:600;
   color:var(--c-navy); line-height:1.2; flex:1;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
 /* GV / NGV badge */
 .gv-tag {
   display:inline-flex; align-items:center; gap:3px;
-  padding:2px 6px; border-radius:5px;
-  font-size:.6rem; font-weight:500; letter-spacing:.04em;
-  flex-shrink:0; margin-top:2px;
+  padding:1px 5px; border-radius:4px;
+  font-size:.58rem; font-weight:500; letter-spacing:.04em;
+  flex-shrink:0;
 }
 .gv-tag.gv  { background:rgba(24,104,64,.08);  color:var(--c-gv);  border:1px solid rgba(24,104,64,.18); }
 .gv-tag.ngv { background:rgba(160,32,32,.06);  color:var(--c-ngv); border:1px solid rgba(160,32,32,.14); }
 
-.card-cat  { font-size:.67rem; font-weight:500; color:var(--c-muted); text-transform:uppercase; letter-spacing:.1em; }
-.card-meta { display:flex; flex-wrap:wrap; gap:4px; }
+.card-row2 { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.card-cat  { font-size:.62rem; font-weight:500; color:var(--c-muted); text-transform:uppercase; letter-spacing:.08em; }
+.card-sep  { font-size:.6rem; color:var(--c-line); }
 .meta-tag  {
-  font-size:.7rem; padding:2px 7px; border-radius:6px;
+  font-size:.65rem; padding:1px 6px; border-radius:5px;
   background:rgba(11,40,76,.04); border:1px solid var(--c-line2);
   color:var(--c-text2); font-weight:400;
 }
 .meta-tag.qty { color:var(--c-blue); background:rgba(30,95,160,.06); border-color:rgba(30,95,160,.12); }
-.meta-tag.fz  { font-size:.66rem; }
+.meta-tag.fz  { font-size:.6rem; }
 .meta-tag.b   { color:#0b3d6e; background:rgba(26,107,168,.07); border-color:rgba(26,107,168,.16); }
 .meta-tag.k   { color:#0d4830; background:rgba(29,122,80,.07);  border-color:rgba(29,122,80,.16); }
-.card-date { font-size:.68rem; color:var(--c-text3); }
+.card-date { font-size:.62rem; color:var(--c-text3); }
 .card-date b { color:var(--c-text2); font-weight:400; }
-.card-note { font-size:.72rem; color:var(--c-text3); font-style:italic; line-height:1.4; border-top:1px solid var(--c-line2); padding-top:6px; }
+.card-note { font-size:.66rem; color:var(--c-text3); font-style:italic; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .empty-state { grid-column:1/-1; text-align:center; padding:4rem 2rem; }
 .empty-state svg { width:48px; height:48px; margin:0 auto .9rem; display:block; opacity:.2; color:var(--c-blue); }
@@ -413,7 +424,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 
 .modal-header {
   background:var(--c-navy);
-  padding:1.25rem 1.5rem;
+  padding:.9rem 1.25rem;
   flex-shrink:0;
 }
 .modal-header h2 {
@@ -421,17 +432,17 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
   color:#fff; letter-spacing:-.01em;
 }
 
-.modal-scroll { overflow-y:auto; flex:1; padding:1.25rem 1.5rem; }
+.modal-scroll { overflow-y:auto; flex:1; padding:.9rem 1.25rem; }
 
 /* ── form fields ── */
-.fg { margin-bottom:.8rem; }
+.fg { margin-bottom:.6rem; }
 .fg label {
   display:block; font-size:.67rem; font-weight:500;
   color:var(--c-text3); text-transform:uppercase;
   letter-spacing:.1em; margin-bottom:.3rem;
 }
 .fg input, .fg select, .fg textarea {
-  width:100%; padding:.62rem .85rem;
+  width:100%; padding:.55rem .8rem;
   background:var(--c-bg); border:1.5px solid var(--c-line);
   border-radius:var(--r-sm); color:var(--c-text);
   font-family:var(--font-sans); font-size:.86rem; font-weight:400;
@@ -488,7 +499,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 
 /* modal footer */
 .modal-footer {
-  padding:.9rem 1.5rem 1.1rem;
+  padding:.7rem 1.25rem .9rem;
   border-top:1px solid var(--c-line2);
   display:flex; gap:.55rem; justify-content:flex-end; align-items:center;
   flex-shrink:0; background:var(--c-surface);
@@ -510,7 +521,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 .btn-delete {
   margin-right:auto; background:transparent; color:var(--c-ngv);
   border:1.5px solid rgba(160,32,32,.18); border-radius:var(--r-sm);
-  padding:.62rem .85rem; font-family:var(--font-sans); font-size:.8rem; font-weight:400;
+  padding:.55rem .8rem; font-family:var(--font-sans); font-size:.8rem; font-weight:400;
   cursor:pointer; transition:all .18s;
 }
 .btn-delete:hover { background:rgba(160,32,32,.06); }
@@ -806,7 +817,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
       </div>
     </div>
 
-    <div class="fg"><label>Naam</label><input type="text" id="fNaam" placeholder="bv. kipfilet, erwtensoep…"></div>
+    <div class="fg"><label>Naam</label><input type="text" id="fNaam" placeholder="bv. kipfilet, erwtensoep…" oninput="autoFillCategorie(this.value)"></div>
     <div class="grid2">
       <div class="fg"><label>Categorie</label>
         <select id="fCat">
@@ -1005,12 +1016,21 @@ async function loadItems() {
       const datum = i.datum_ingevroren ? `<div class="card-date">ingevroren <b>${fmtDate(i.datum_ingevroren)}</b></div>` : '';
       const note  = i.notities ? `<div class="card-note">${esc(i.notities)}</div>` : '';
       const photo = i.foto ? `<img class="card-photo" src="${i.foto}" alt="${esc(i.naam)}" loading="lazy">` : '';
-      return `<div class="item-card" onclick="openEdit(${i.id})">${photo}<div class="card-content">
-        <div class="card-row1"><div class="card-name">${esc(i.naam)}</div>${badge}</div>
-        <div class="card-cat">${esc(CAT_LABEL[i.categorie]||i.categorie)}</div>
-        <div class="card-meta"><span class="meta-tag fz ${vc}"><span class="fz-dot ${vc}" style="width:7px;height:7px;border-radius:2px;margin-right:4px;display:inline-block;vertical-align:middle"></span>${vl}</span>${qty}</div>
-        ${datum}${note}
-      </div></div>`;
+      return `<div class="item-card">
+        <button class="card-del" onclick="quickDelete(event,${i.id})" title="Verwijderen">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+        ${photo}<div class="card-content" onclick="openEdit(${i.id})">
+          <div class="card-row1"><div class="card-name">${esc(i.naam)}</div>${badge}</div>
+          <div class="card-row2">
+            <span class="card-cat">${esc(CAT_LABEL[i.categorie]||i.categorie)}</span>
+            <span class="card-sep">·</span>
+            <span class="meta-tag fz ${vc}"><span class="fz-dot ${vc}" style="width:6px;height:6px;border-radius:2px;margin-right:3px;display:inline-block;vertical-align:middle"></span>${vl}</span>
+            ${qty}
+          </div>
+          ${datum ? datum : ''}${note ? note : ''}
+        </div>
+      </div>`;
     }).join('');
   } catch {}
 }
@@ -1088,6 +1108,11 @@ async function saveItem() {
 }
 
 function confirmDel() { deleteId = editId; closeOv('fModal'); setTimeout(() => openOv('dModal'), 140); }
+function quickDelete(e, id) {
+  e.stopPropagation();
+  deleteId = id;
+  openOv('dModal');
+}
 async function doDelete() {
   if (!deleteId) return;
   try {
@@ -1107,6 +1132,73 @@ function toast(msg, type = 'ok') {
 }
 
 document.querySelectorAll('.overlay').forEach(ov => ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); }));
+
+
+// ── Autofill categorie ─────────────────────────────────────
+const FOOD_CAT = {
+  // Vlees
+  kip:'vlees', kipfilet:'vlees', kippendij:'vlees', kippenborst:'vlees', kipvleugels:'vlees',
+  gehakt:'vlees', rundergehakt:'vlees', varkensgehakt:'vlees', gemengd:'vlees',
+  steak:'vlees', biefstuk:'vlees', entrecote:'vlees', ribeye:'vlees', ossenhaas:'vlees',
+  bavette:'vlees', rosbief:'vlees', rundvlees:'vlees', hamlapje:'vlees', varkensvlees:'vlees',
+  spek:'vlees', lam:'vlees', lamskotelet:'vlees', lamsfilet:'vlees', lamsgehakt:'vlees',
+  worstje:'vlees', chipolata:'vlees', merguez:'vlees', worst:'vlees', braadworst:'vlees',
+  // Vis
+  zalm:'vis', zalmfilet:'vis', tonijn:'vis', sardine:'vis', makreel:'vis',
+  kabeljauw:'vis', tilapia:'vis', pangasius:'vis', bot:'vis', schol:'vis',
+  garnalen:'vis', garnaal:'vis', mosselen:'vis', inktvis:'vis', kreeft:'vis',
+  forel:'vis', witvis:'vis', haring:'vis', paling:'vis', scampi:'vis',
+  // Groenten
+  brocolli:'groenten', broccoli:'groenten', bloemkool:'groenten', spinazie:'groenten',
+  erwten:'groenten', bonen:'groenten', sperziebonen:'groenten', boontjes:'groenten',
+  prei:'groenten', wortel:'groenten', wortelen:'groenten', mais:'groenten', maïs:'groenten',
+  paprika:'groenten', courgette:'groenten', aubergine:'groenten', champignons:'groenten',
+  ui:'groenten', uien:'groenten', knolselderij:'groenten', boerenkool:'groenten',
+  spruitjes:'groenten', snijbonen:'groenten', andijvie:'groenten', witlof:'groenten',
+  asperges:'groenten', artisjok:'groenten', pompoenpuree:'groenten', pompoen:'groenten',
+  zoete:'groenten', zoeteaardappel:'groenten', aardappel:'groenten', aardappelen:'groenten',
+  // Fruit
+  aardbeien:'fruit', aardbei:'fruit', frambozen:'fruit', framboos:'fruit',
+  blauwe:'fruit', blauwebessen:'fruit', bessen:'fruit', kersen:'fruit', kers:'fruit',
+  mango:'fruit', ananas:'fruit', banaan:'fruit', bananen:'fruit', appel:'fruit',
+  peer:'fruit', perzik:'fruit', abrikoos:'fruit', pruim:'fruit', druiven:'fruit',
+  vijgen:'fruit', granaatappel:'fruit', limoen:'fruit', citroen:'fruit',
+  // Soepen
+  soep:'soepen', tomatensoep:'soepen', groentesoep:'soepen', kippensoep:'soepen',
+  bouillon:'soepen', minestrone:'soepen', pompoensoep:'soepen', erwtensoep:'soepen',
+  uiensoep:'soepen', bisque:'soepen', gazpacho:'soepen',
+  // Brood
+  brood:'brood', baguette:'brood', croissant:'brood', brioche:'brood',
+  pistolet:'brood', boterkoek:'brood', cake:'brood', taart:'brood',
+  pannenkoeken:'brood', wafels:'brood', muffin:'brood', koekjes:'brood',
+  // Maaltijden
+  lasagne:'maaltijden', spaghetti:'maaltijden', pasta:'maaltijden', pizza:'maaltijden',
+  risotto:'maaltijden', curry:'maaltijden', stoofvlees:'maaltijden', stoemp:'maaltijden',
+  bolognese:'maaltijden', maaltijd:'maaltijden', ovenschotel:'maaltijden',
+  chili:'maaltijden', tajine:'maaltijden', paella:'maaltijden', couscous:'maaltijden',
+  // Zuivel
+  boter:'zuivel', kaas:'zuivel', room:'zuivel', yoghurt:'zuivel',
+  eieren:'zuivel', ei:'zuivel', kwark:'zuivel', ricotta:'zuivel',
+  // IJs & desserts
+  ijs:'ijs', ijsje:'ijs', sorbet:'ijs', ijstaart:'ijs', parfait:'ijs',
+  // Snacks
+  frietjes:'snacks', frieten:'snacks', nuggets:'snacks', falafel:'snacks',
+  loempia:'snacks', kroket:'snacks', bitterballen:'snacks', samosa:'snacks',
+  lente:'snacks', lentebolletje:'snacks', bal:'snacks',
+};
+
+function autoFillCategorie(naam) {
+  if (!naam || naam.length < 3) return;
+  const sleutel = naam.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  // exact match first
+  if (FOOD_CAT[sleutel]) { document.getElementById('fCat').value = FOOD_CAT[sleutel]; return; }
+  // partial match
+  for (const [woord, cat] of Object.entries(FOOD_CAT)) {
+    if (sleutel.startsWith(woord) || woord.startsWith(sleutel)) {
+      document.getElementById('fCat').value = cat; return;
+    }
+  }
+}
 
 // ── PWA ───────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
