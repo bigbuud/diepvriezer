@@ -466,7 +466,8 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 }
 .photo-field:hover { border-color:var(--c-blue2); }
 .photo-field.filled { border-style:solid; border-color:var(--c-line); }
-.photo-field input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0; }
+.photo-field input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0; z-index:2; touch-action:manipulation; }
+.photo-field.filled input[type=file] { display:none; }
 .photo-placeholder {
   display:flex; align-items:center; gap:.7rem;
   padding:.75rem 1rem; pointer-events:none;
@@ -780,8 +781,8 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     <!-- Photo -->
     <div class="fg">
       <label>Foto</label>
-      <div class="photo-field" id="photoField" onclick="trigPhoto()">
-        <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
+      <div class="photo-field" id="photoField">
+        <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)">
         <div class="photo-placeholder" id="photoPh">
           <svg width="22" height="22"><use href="#ico-cam"/></svg>
           <div class="photo-placeholder-txt">
@@ -875,8 +876,6 @@ const API = '/api';
 let editId = null, deleteId = null, activeVriezer = 0, gvOnly = false, isGV = true, photoData = null;
 
 // ── Photo ─────────────────────────────────────────────────
-function trigPhoto() { if (photoData) return; document.getElementById('photoInput').click(); }
-
 function handlePhoto(e) {
   const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
