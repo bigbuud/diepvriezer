@@ -224,31 +224,32 @@ body > *:not(.bg-layer):not(.mountains):not(.flakes) { position:relative; z-inde
 .container { max-width:1080px; margin:0 auto; padding:0 1.5rem 5rem; }
 
 /* ══════════════════════════════════════════
-   STATS STRIP
+   STATS BAR — one compact pill
 ══════════════════════════════════════════ */
-.stats-strip {
-  display:grid; grid-template-columns:repeat(4,1fr);
-  gap:.625rem; padding:1.25rem 0 1rem;
-}
-
-.stat {
+.stats-bar {
+  display:flex; align-items:center;
   background:var(--c-surface); border:1px solid var(--c-line);
-  border-radius:var(--r-md); padding:.9rem 1.1rem;
-  box-shadow:var(--shadow-sm);
-  transition:transform .2s, box-shadow .2s;
+  border-radius:40px; box-shadow:var(--shadow-sm);
+  padding:.28rem .5rem; margin:.9rem 0 .75rem;
+  width:fit-content; gap:0;
 }
-.stat:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.stat-pill {
+  display:flex; align-items:center; gap:.35rem;
+  padding:.22rem .7rem; border-radius:30px;
+  transition:background .18s;
+}
+.stat-pill + .stat-pill { border-left:1px solid var(--c-line2); }
 .stat-n {
-  font-family:var(--font-serif); font-size:2rem; font-weight:600;
-  line-height:1; color:var(--c-navy); display:block;
+  font-family:var(--font-serif); font-size:.95rem; font-weight:600;
+  line-height:1; color:var(--c-navy);
 }
-.stat-n.acc  { color:var(--c-blue); }
-.stat-n.grn  { color:var(--c-gv); }
+.stat-n.acc { color:var(--c-blue); }
+.stat-n.grn { color:var(--c-gv); }
 .stat-lbl {
-  font-size:.65rem; font-weight:500; color:var(--c-text3);
-  text-transform:uppercase; letter-spacing:.1em; margin-top:.3rem; display:block;
+  font-size:.65rem; font-weight:400; color:var(--c-text3);
+  letter-spacing:.03em;
 }
-.stat-ico { width:20px; height:20px; margin-bottom:.4rem; opacity:.55; }
+.stat-ico { width:13px; height:13px; opacity:.5; flex-shrink:0; }
 
 /* ══════════════════════════════════════════
    SEGMENTED CONTROL (freezer tabs)
@@ -343,60 +344,64 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 .item-card {
   background:var(--c-surface); border:1px solid var(--c-line);
   border-radius:var(--r-md); overflow:hidden;
-  cursor:pointer; transition:box-shadow .2s, border-color .2s;
+  transition:box-shadow .2s, border-color .2s;
   box-shadow:var(--shadow-sm); display:flex; flex-direction:row;
-  align-items:stretch; min-height:64px;
+  align-items:stretch; min-height:58px; position:relative;
 }
-.item-card:hover { box-shadow:var(--shadow-md); border-color:rgba(30,95,160,.18); }
-.item-card:active { background:rgba(11,40,76,.02); }
+.item-card:hover { box-shadow:var(--shadow-md); border-color:rgba(30,95,160,.15); }
 
-/* Delete button on left */
+/* Subtle delete — hidden icon right edge, reveals on hover */
 .card-del {
   display:flex; align-items:center; justify-content:center;
-  width:44px; flex-shrink:0;
-  background:rgba(160,32,32,.055); border-right:1px solid var(--c-line);
-  color:rgba(160,32,32,.5); transition:all .18s;
+  width:36px; flex-shrink:0; order:99;
+  background:transparent; border:none; border-left:1px solid transparent;
+  color:rgba(160,32,32,.25); transition:all .2s; cursor:pointer;
 }
-.card-del:hover, .card-del:active { background:rgba(160,32,32,.12); color:var(--c-ngv); }
+.item-card:hover .card-del { border-left-color:var(--c-line2); color:rgba(160,32,32,.4); }
+.card-del:hover, .card-del:active {
+  background:rgba(160,32,32,.07) !important;
+  color:var(--c-ngv) !important;
+  border-left-color:rgba(160,32,32,.15) !important;
+}
 .card-del svg { pointer-events:none; }
 
-/* Photo thumbnail on left (when present) */
-.card-photo { width:72px; min-height:64px; object-fit:cover; background:var(--c-ice); display:block; flex-shrink:0; }
+/* Photo thumbnail */
+.card-photo { width:66px; min-height:58px; object-fit:cover; background:var(--c-ice); display:block; flex-shrink:0; }
 
-.card-content { padding:.52rem .75rem; display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; justify-content:center; }
+.card-content { padding:.46rem .7rem; display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; justify-content:center; cursor:pointer; }
 
 .card-row1 { display:flex; align-items:center; justify-content:space-between; gap:6px; }
 .card-name {
-  font-family:var(--font-serif); font-size:.9rem; font-weight:600;
-  color:var(--c-navy); line-height:1.2; flex:1;
+  font-family:var(--font-serif); font-size:.88rem; font-weight:600;
+  color:var(--c-navy); line-height:1.25; flex:1;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
 /* GV / NGV badge */
 .gv-tag {
-  display:inline-flex; align-items:center; gap:3px;
+  display:inline-flex; align-items:center; gap:2px;
   padding:1px 5px; border-radius:4px;
-  font-size:.58rem; font-weight:500; letter-spacing:.04em;
+  font-size:.55rem; font-weight:500; letter-spacing:.04em;
   flex-shrink:0;
 }
-.gv-tag.gv  { background:rgba(24,104,64,.08);  color:var(--c-gv);  border:1px solid rgba(24,104,64,.18); }
-.gv-tag.ngv { background:rgba(160,32,32,.06);  color:var(--c-ngv); border:1px solid rgba(160,32,32,.14); }
+.gv-tag.gv  { background:rgba(24,104,64,.08);  color:var(--c-gv);  border:1px solid rgba(24,104,64,.16); }
+.gv-tag.ngv { background:rgba(160,32,32,.05);  color:var(--c-ngv); border:1px solid rgba(160,32,32,.12); }
 
-.card-row2 { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-.card-cat  { font-size:.62rem; font-weight:500; color:var(--c-muted); text-transform:uppercase; letter-spacing:.08em; }
-.card-sep  { font-size:.6rem; color:var(--c-line); }
+.card-row2 { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+.card-cat  { font-size:.6rem; font-weight:500; color:var(--c-text3); letter-spacing:.04em; }
+.card-sep  { font-size:.55rem; color:var(--c-pale); }
 .meta-tag  {
-  font-size:.65rem; padding:1px 6px; border-radius:5px;
-  background:rgba(11,40,76,.04); border:1px solid var(--c-line2);
+  font-size:.62rem; padding:1px 5px; border-radius:4px;
+  background:rgba(11,40,76,.035); border:1px solid var(--c-line2);
   color:var(--c-text2); font-weight:400;
 }
-.meta-tag.qty { color:var(--c-blue); background:rgba(30,95,160,.06); border-color:rgba(30,95,160,.12); }
-.meta-tag.fz  { font-size:.6rem; }
-.meta-tag.b   { color:#0b3d6e; background:rgba(26,107,168,.07); border-color:rgba(26,107,168,.16); }
-.meta-tag.k   { color:#0d4830; background:rgba(29,122,80,.07);  border-color:rgba(29,122,80,.16); }
-.card-date { font-size:.62rem; color:var(--c-text3); }
+.meta-tag.qty { color:var(--c-blue); background:rgba(30,95,160,.05); border-color:rgba(30,95,160,.1); }
+.meta-tag.fz  { font-size:.58rem; }
+.meta-tag.b   { color:#0b3d6e; background:rgba(26,107,168,.06); border-color:rgba(26,107,168,.14); }
+.meta-tag.k   { color:#0d4830; background:rgba(29,122,80,.06);  border-color:rgba(29,122,80,.14); }
+.card-date { font-size:.6rem; color:var(--c-text3); }
 .card-date b { color:var(--c-text2); font-weight:400; }
-.card-note { font-size:.66rem; color:var(--c-text3); font-style:italic; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-note { font-size:.63rem; color:var(--c-text3); font-style:italic; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .empty-state { grid-column:1/-1; text-align:center; padding:4rem 2rem; }
 .empty-state svg { width:48px; height:48px; margin:0 auto .9rem; display:block; opacity:.2; color:var(--c-blue); }
@@ -734,27 +739,27 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 <div id="app">
 <div class="container">
 
-  <!-- Stats -->
-  <div class="stats-strip">
-    <div class="stat">
-      <svg class="stat-ico" color="#2e6da4"><use href="#ico-snow"/></svg>
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-pill">
+      <svg class="stat-ico" color="#2e6da4" viewBox="0 0 24 24"><use href="#ico-snow"/></svg>
       <span class="stat-n acc" id="sTotaal">0</span>
-      <span class="stat-lbl">Totaal</span>
+      <span class="stat-lbl">items</span>
     </div>
-    <div class="stat">
-      <span class="fz-dot b" style="width:14px;height:14px;border-radius:3px;display:block;margin-bottom:.4rem"></span>
+    <div class="stat-pill">
+      <span class="fz-dot b" style="width:7px;height:7px;border-radius:2px;flex-shrink:0"></span>
       <span class="stat-n" id="sBosch">0</span>
       <span class="stat-lbl">Bosch</span>
     </div>
-    <div class="stat">
-      <span class="fz-dot k" style="width:14px;height:14px;border-radius:3px;display:block;margin-bottom:.4rem"></span>
+    <div class="stat-pill">
+      <span class="fz-dot k" style="width:7px;height:7px;border-radius:2px;flex-shrink:0"></span>
       <span class="stat-n" id="sKist">0</span>
       <span class="stat-lbl">Kist</span>
     </div>
-    <div class="stat">
-      <svg style="width:20px;height:20px;display:block;margin-bottom:.4rem;opacity:.55" color="#186840" viewBox="0 0 28 28"><use href="#ico-gv"/></svg>
+    <div class="stat-pill">
+      <svg style="width:13px;height:13px;flex-shrink:0;opacity:.6" color="#186840" viewBox="0 0 32 32"><use href="#ico-gv"/></svg>
       <span class="stat-n grn" id="sGV">0</span>
-      <span class="stat-lbl">Glutenvrij</span>
+      <span class="stat-lbl">GV</span>
     </div>
   </div>
 
@@ -1039,19 +1044,19 @@ async function loadItems() {
       const note  = i.notities ? `<div class="card-note">${esc(i.notities)}</div>` : '';
       const photo = i.foto ? `<img class="card-photo" src="${i.foto}" alt="${esc(i.naam)}" loading="lazy">` : '';
       return `<div class="item-card">
-        <button class="card-del" onclick="quickDelete(event,${i.id})" title="Verwijderen">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        </button>
         ${photo}<div class="card-content" onclick="openEdit(${i.id})">
           <div class="card-row1"><div class="card-name">${esc(i.naam)}</div>${badge}</div>
           <div class="card-row2">
             <span class="card-cat">${esc(CAT_LABEL[i.categorie]||i.categorie)}</span>
             <span class="card-sep">·</span>
-            <span class="meta-tag fz ${vc}"><span class="fz-dot ${vc}" style="width:6px;height:6px;border-radius:2px;margin-right:3px;display:inline-block;vertical-align:middle"></span>${vl}</span>
+            <span class="meta-tag fz ${vc}"><span class="fz-dot ${vc}" style="width:5px;height:5px;border-radius:1px;margin-right:3px;display:inline-block;vertical-align:middle"></span>${vl}</span>
             ${qty}
           </div>
-          ${datum ? datum : ''}${note ? note : ''}
+          ${datum}${note}
         </div>
+        <button class="card-del" onclick="quickDelete(event,${i.id})" title="Verwijderen">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
       </div>`;
     }).join('');
   } catch {}
