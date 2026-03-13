@@ -1153,8 +1153,11 @@ async function openEdit(id) {
 async function saveItem() {
   const naam = document.getElementById('fNaam').value.trim();
   if (!naam) { toast('Naam is verplicht', 'err'); return; }
+  const chosenCat = document.getElementById('fCat').value;
+  // Learn: remember this naam→categorie for next time
+  learnCategory(naam, chosenCat);
   const body = {
-    naam, categorie: document.getElementById('fCat').value,
+    naam, categorie: chosenCat,
     vriezer: parseInt(document.getElementById('fVriezer').value),
     glutenvrij: isGV,
     hoeveelheid: document.getElementById('fHoev').value.trim(),
@@ -1264,12 +1267,37 @@ const FOOD_CAT = {
   lente:'snacks', lentebolletje:'snacks', bal:'snacks',
 };
 
+// ── Learned categories (localStorage) ────────────────────────────────────
+const LEARNED_KEY = 'vriezer_cat_learned';
+function getLearnedCats() {
+  try { return JSON.parse(localStorage.getItem(LEARNED_KEY) || '{}'); } catch { return {}; }
+}
+function learnCategory(naam, cat) {
+  if (!naam || naam.length < 3) return;
+  const key = naam.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  // Don't learn very short keys (< 4 chars) to avoid noise
+  if (key.length < 4) return;
+  const learned = getLearnedCats();
+  learned[key] = cat;
+  try { localStorage.setItem(LEARNED_KEY, JSON.stringify(learned)); } catch {}
+}
+
 function autoFillCategorie(naam) {
   if (!naam || naam.length < 3) return;
   const sleutel = naam.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  // exact match first
+
+  // 1. Learned entries take priority (user explicitly chose this)
+  const learned = getLearnedCats();
+  if (learned[sleutel]) { document.getElementById('fCat').value = learned[sleutel]; return; }
+  // partial match in learned
+  for (const [woord, cat] of Object.entries(learned)) {
+    if (sleutel.startsWith(woord) || woord.startsWith(sleutel)) {
+      document.getElementById('fCat').value = cat; return;
+    }
+  }
+
+  // 2. Built-in dictionary
   if (FOOD_CAT[sleutel]) { document.getElementById('fCat').value = FOOD_CAT[sleutel]; return; }
-  // partial match
   for (const [woord, cat] of Object.entries(FOOD_CAT)) {
     if (sleutel.startsWith(woord) || woord.startsWith(sleutel)) {
       document.getElementById('fCat').value = cat; return;
