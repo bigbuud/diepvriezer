@@ -1,4 +1,4 @@
-const CACHE = 'vriezer-v3';
+const CACHE = 'vriezer-v4';
 const SHELL = ['/', '/index.html'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
