@@ -38,6 +38,14 @@
   --c-gv:        #186840;
   --c-ngv:       #a02020;
   --c-accent:    #1e5fa0;
+  --c-warn:      #b3690a;
+  --c-warn-bg:   rgba(179,105,10,.09);
+  --c-warn-line: rgba(179,105,10,.22);
+  --c-exp:       #a02020;
+  --c-exp-bg:    rgba(160,32,32,.08);
+  --c-exp-line:  rgba(160,32,32,.2);
+  --c-ok-bg:     rgba(24,104,64,.07);
+  --c-ok-line:   rgba(24,104,64,.18);
   --r-sm:        10px;
   --r-md:        16px;
   --r-lg:        22px;
@@ -215,6 +223,22 @@ body > *:not(.bg-layer):not(.mountains):not(.flakes) { position:relative; z-inde
 }
 .btn-logout-header:hover { color:rgba(255,255,255,.55); }
 
+.btn-cart-header {
+  position:relative; display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; background:rgba(255,255,255,.1); color:#fff;
+  border:1px solid rgba(255,255,255,.16); border-radius:8px;
+  cursor:pointer; transition:background .18s;
+}
+.btn-cart-header:hover { background:rgba(255,255,255,.18); }
+.cart-badge {
+  position:absolute; top:-5px; right:-5px;
+  background:var(--c-warn); color:#fff;
+  border-radius:8px; min-width:16px; height:16px; padding:0 3px;
+  font-size:.58rem; font-weight:600; line-height:16px; text-align:center;
+  display:none;
+}
+.cart-badge.show { display:block; }
+
 /* ══════════════════════════════════════════
    APP LAYOUT
 ══════════════════════════════════════════ */
@@ -245,11 +269,16 @@ body > *:not(.bg-layer):not(.mountains):not(.flakes) { position:relative; z-inde
 }
 .stat-n.acc { color:var(--c-blue); }
 .stat-n.grn { color:var(--c-gv); }
+.stat-n.wrn { color:var(--c-warn); }
 .stat-lbl {
   font-size:.65rem; font-weight:400; color:var(--c-text3);
   letter-spacing:.03em;
 }
 .stat-ico { width:13px; height:13px; opacity:.5; flex-shrink:0; }
+.stat-pill.clickable { cursor:pointer; }
+.stat-pill.clickable:hover { background:rgba(11,40,76,.04); }
+.stat-pill.warn-pill { background:var(--c-warn-bg); }
+.stat-pill.hidden-pill { display:none; }
 
 /* ══════════════════════════════════════════
    SEGMENTED CONTROL (freezer tabs)
@@ -331,6 +360,8 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 }
 .chip-gv:hover  { border-color:rgba(24,104,64,.35); color:var(--c-gv); }
 .chip-gv.active { background:rgba(24,104,64,.07); border-color:rgba(24,104,64,.3); color:var(--c-gv); }
+#chipVerlopen:hover  { border-color:var(--c-warn-line); color:var(--c-warn); }
+#chipVerlopen.active { background:var(--c-warn-bg); border-color:var(--c-warn-line); color:var(--c-warn); }
 
 /* ══════════════════════════════════════════
    ITEM GRID
@@ -402,6 +433,20 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 .card-date { font-size:.6rem; color:var(--c-text3); }
 .card-date b { color:var(--c-text2); font-weight:400; }
 .card-note { font-size:.63rem; color:var(--c-text3); font-style:italic; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Expiry badge */
+.exp-tag {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:1px 6px; border-radius:4px;
+  font-size:.58rem; font-weight:500; letter-spacing:.02em;
+  flex-shrink:0; white-space:nowrap;
+}
+.exp-tag svg { flex-shrink:0; }
+.exp-tag.exp-ok   { background:var(--c-ok-bg);  color:var(--c-gv);  border:1px solid var(--c-ok-line); }
+.exp-tag.exp-warn { background:var(--c-warn-bg); color:var(--c-warn); border:1px solid var(--c-warn-line); }
+.exp-tag.exp-over { background:var(--c-exp-bg);  color:var(--c-exp);  border:1px solid var(--c-exp-line); }
+.item-card.is-expiring { border-color:var(--c-warn-line); }
+.item-card.is-expired  { border-color:var(--c-exp-line); }
 
 .empty-state { grid-column:1/-1; text-align:center; padding:4rem 2rem; }
 .empty-state svg { width:48px; height:48px; margin:0 auto .9rem; display:block; opacity:.2; color:var(--c-blue); }
@@ -499,15 +544,17 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 /* The two label-buttons side by side */
 .photo-btns { display:flex; gap:0; }
 .photo-btn-label {
-  flex:1; display:flex; align-items:center; justify-content:center; gap:.45rem;
-  padding:.55rem .5rem; cursor:pointer;
-  font-family:var(--font-sans); font-size:.8rem; font-weight:400; color:var(--c-text2);
+  flex:1; display:flex; align-items:center; justify-content:center; gap:.4rem;
+  padding:.55rem .4rem; cursor:pointer;
+  font-family:var(--font-sans); font-size:.76rem; font-weight:400; color:var(--c-text2);
   transition:background .15s; user-select:none; -webkit-user-select:none;
   border:none; background:transparent;
 }
 .photo-btn-label:not(:first-child) { border-left:1px solid var(--c-line); }
 .photo-btn-label:hover, .photo-btn-label:active { background:rgba(30,95,160,.06); }
 .photo-btn-label svg { color:var(--c-muted); flex-shrink:0; }
+.photo-btn-label.scan-btn { color:var(--c-blue); }
+.photo-btn-label.scan-btn svg { color:var(--c-blue); }
 /* Hide the actual inputs — labels still trigger them */
 .photo-input { display:none; }
 /* Preview state */
@@ -523,6 +570,100 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 }
 .photo-clear:hover { background:rgba(160,32,32,.08); }
 .photo-zone.has-photo { border-style:solid; }
+
+.fg-hint { font-size:.68rem; color:var(--c-text3); margin-top:.3rem; }
+.fg-hint b { color:var(--c-text2); font-weight:500; }
+
+/* ══════════════════════════════════════════
+   BOODSCHAPPENLIJST
+══════════════════════════════════════════ */
+.bl-add-row { display:flex; gap:.45rem; margin-bottom:.9rem; }
+.bl-add-row input {
+  flex:1; padding:.55rem .8rem;
+  background:var(--c-bg); border:1.5px solid var(--c-line);
+  border-radius:var(--r-sm); color:var(--c-text);
+  font-family:var(--font-sans); font-size:.86rem;
+}
+.bl-add-row input:focus { outline:none; border-color:var(--c-blue2); background:#fff; }
+.bl-add-btn {
+  background:var(--c-navy); color:#fff; border:none;
+  border-radius:var(--r-sm); padding:0 1rem;
+  font-family:var(--font-sans); font-weight:500; font-size:.86rem;
+  cursor:pointer; transition:background .18s;
+  display:flex; align-items:center; justify-content:center;
+}
+.bl-add-btn:hover { background:var(--c-navy2); }
+
+.bl-list { display:flex; flex-direction:column; gap:.35rem; }
+.bl-row {
+  display:flex; align-items:center; gap:.6rem;
+  padding:.55rem .7rem; border-radius:var(--r-sm);
+  background:var(--c-surface); border:1px solid var(--c-line);
+  transition:background .18s, border-color .18s;
+}
+.bl-row.checked { background:var(--c-bg); border-color:var(--c-line2); }
+.bl-check {
+  width:19px; height:19px; border-radius:6px; flex-shrink:0; cursor:pointer;
+  border:1.5px solid var(--c-pale); background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s; color:transparent;
+}
+.bl-row.checked .bl-check { background:var(--c-gv); border-color:var(--c-gv); color:#fff; }
+.bl-info { flex:1; min-width:0; }
+.bl-naam { font-family:var(--font-serif); font-size:.86rem; font-weight:600; color:var(--c-navy); line-height:1.3; }
+.bl-row.checked .bl-naam { color:var(--c-text3); text-decoration:line-through; }
+.bl-meta { font-size:.65rem; color:var(--c-text3); margin-top:1px; }
+.bl-del {
+  background:none; border:none; color:rgba(160,32,32,.3);
+  cursor:pointer; padding:.3rem; border-radius:5px; flex-shrink:0;
+  transition:color .18s, background .18s;
+}
+.bl-del:hover { color:var(--c-ngv); background:rgba(160,32,32,.07); }
+.bl-empty { text-align:center; padding:2.5rem 1rem; }
+.bl-empty svg { width:36px; height:36px; margin:0 auto .7rem; display:block; opacity:.2; color:var(--c-blue); }
+.bl-empty p { font-family:var(--font-serif); font-style:italic; font-size:1rem; color:var(--c-text3); }
+
+/* Quick "add to list" prompt shown after deleting an item */
+.del-to-list {
+  display:flex; align-items:center; gap:.5rem;
+  margin-top:1rem; padding:.6rem .8rem;
+  background:rgba(30,95,160,.05); border:1px solid rgba(30,95,160,.14);
+  border-radius:var(--r-sm); font-size:.76rem; color:var(--c-text2);
+}
+.del-to-list input[type=checkbox] { width:16px; height:16px; accent-color:var(--c-blue); flex-shrink:0; }
+
+/* ══════════════════════════════════════════
+   BARCODE SCANNER
+══════════════════════════════════════════ */
+.scanner-overlay { z-index:600; background:rgba(4,14,28,.92); }
+.scanner-box {
+  width:100%; max-width:420px; position:relative;
+  border-radius:var(--r-lg); overflow:hidden; background:#000;
+  box-shadow:var(--shadow-lg);
+}
+.scanner-video { width:100%; height:320px; object-fit:cover; display:block; background:#000; }
+.scanner-frame {
+  position:absolute; inset:18% 12%; pointer-events:none;
+  border:2px solid rgba(255,255,255,.75); border-radius:12px;
+  box-shadow:0 0 0 2000px rgba(4,14,28,.35);
+}
+.scanner-hint {
+  position:absolute; bottom:64px; left:0; right:0; text-align:center;
+  color:rgba(255,255,255,.85); font-family:var(--font-sans); font-size:.8rem;
+}
+.scanner-status {
+  position:absolute; top:0; left:0; right:0; padding:.7rem 1rem;
+  background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
+  color:#fff; font-family:var(--font-sans); font-size:.78rem; text-align:center;
+}
+.scanner-close {
+  position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+  background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.28);
+  border-radius:20px; padding:.5rem 1.3rem;
+  font-family:var(--font-sans); font-size:.82rem; cursor:pointer;
+  transition:background .18s;
+}
+.scanner-close:hover { background:rgba(255,255,255,.22); }
 
 /* modal footer */
 .modal-footer {
@@ -592,6 +733,9 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
   .seg-wrap { flex-wrap:wrap; width:100%; }
   .overlay { align-items:flex-end; padding:0; }
   .modal { border-radius:var(--r-lg) var(--r-lg) 0 0; max-height:88vh; align-self:flex-end; }
+  .scanner-overlay { align-items:center; padding:1rem; }
+  .scanner-box { max-width:100%; }
+  .scanner-video { height:60vh; }
 }
 @media (max-width:380px) {
   .btn-add-header .add-label { display:none; }
@@ -691,6 +835,23 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
   <symbol id="ico-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
     <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
   </symbol>
+  <!-- Cart -->
+  <symbol id="ico-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/>
+    <path d="M1 1h3l2.4 13.2a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/>
+  </symbol>
+  <!-- Barcode -->
+  <symbol id="ico-barcode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+    <path d="M3 5v14M7 5v14M10 5v14M13 5v14M15 5v14M19 5v14M21 5v14"/>
+  </symbol>
+  <!-- Clock (houdbaarheid) -->
+  <symbol id="ico-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>
+  </symbol>
+  <!-- Check -->
+  <symbol id="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="4 12 9.5 18 20 6"/>
+  </symbol>
 </svg>
 
 <!-- ══════════════════════════════════════════
@@ -725,6 +886,10 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     <span class="brand-name">Diep<em>vriezer</em></span>
   </div>
   <div class="header-actions">
+    <button class="btn-cart-header" onclick="openBoodschappen()" title="Boodschappenlijst">
+      <svg width="16" height="16"><use href="#ico-cart"/></svg>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
     <button class="btn-add-header" onclick="openAdd()">
       <svg width="13" height="13"><use href="#ico-plus"/></svg>
       <span class="add-label">Toevoegen</span>
@@ -760,6 +925,11 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
       <svg style="width:13px;height:13px;flex-shrink:0;opacity:.6" color="#186840" viewBox="0 0 32 32"><use href="#ico-gv"/></svg>
       <span class="stat-n grn" id="sGV">0</span>
       <span class="stat-lbl">GV</span>
+    </div>
+    <div class="stat-pill clickable warn-pill hidden-pill" id="pillBijnaVerlopen" onclick="toggleBijnaVerlopen()">
+      <svg style="width:13px;height:13px;flex-shrink:0" color="#b3690a" viewBox="0 0 24 24"><use href="#ico-clock"/></svg>
+      <span class="stat-n wrn" id="sBijnaVerlopen">0</span>
+      <span class="stat-lbl">bijna verlopen</span>
     </div>
   </div>
 
@@ -801,12 +971,17 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     </select>
     <select class="filter-sel" id="fSort" onchange="loadItems()">
       <option value="datum">Nieuwste eerst</option>
+      <option value="houdbaarheid">Houdbaarheid</option>
       <option value="naam">Naam A–Z</option>
       <option value="categorie">Categorie</option>
     </select>
     <button class="chip-gv" id="chipGV" onclick="toggleGV()">
       <svg width="12" height="12" viewBox="0 0 28 28" color="currentColor"><use href="#ico-gv"/></svg>
       Glutenvrij
+    </button>
+    <button class="chip-gv" id="chipVerlopen" onclick="toggleVerlopen()">
+      <svg width="12" height="12" viewBox="0 0 24 24" color="currentColor"><use href="#ico-clock"/></svg>
+      Bijna verlopen
     </button>
   </div>
 
@@ -844,6 +1019,10 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
             </svg>
             Galerij
           </label>
+          <button type="button" class="photo-btn-label scan-btn" onclick="openScanner()">
+            <svg width="17" height="17"><use href="#ico-barcode"/></svg>
+            Scan
+          </button>
         </div>
         <!-- Preview shown after selection -->
         <div class="photo-preview-wrap" id="photoPreviewWrap">
@@ -856,7 +1035,7 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     <div class="fg"><label>Naam</label><input type="text" id="fNaam" placeholder="bv. kipfilet, erwtensoep…" oninput="autoFillCategorie(this.value)" autocorrect="on" autocapitalize="sentences" spellcheck="true"></div>
     <div class="grid2">
       <div class="fg"><label>Categorie</label>
-        <select id="fCat">
+        <select id="fCat" onchange="updateHoudbaarhHint()">
           <option value="vlees">Vlees</option><option value="vis">Vis</option>
           <option value="groenten">Groenten</option><option value="fruit">Fruit</option>
           <option value="snacks">Snacks</option><option value="soepen">Soepen</option>
@@ -883,7 +1062,12 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
         </select>
       </div>
     </div>
-    <div class="fg"><label>Datum ingevroren</label><input type="date" id="fDatum"></div>
+    <div class="fg"><label>Datum ingevroren</label><input type="date" id="fDatum" oninput="updateHoudbaarhHint()"></div>
+    <div class="fg">
+      <label>Houdbaar tot <span style="text-transform:none;letter-spacing:0;color:var(--c-text3)">(optioneel)</span></label>
+      <input type="date" id="fHoudbaar" oninput="updateHoudbaarhHint()">
+      <div class="fg-hint" id="houdbaarHint"></div>
+    </div>
     <div class="fg">
       <div class="gv-row" id="gvRow">
         <div class="gv-label is-nil" id="gvLabel">
@@ -917,7 +1101,11 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
     <span class="confirm-icon">🗑</span>
     <h2>Item verwijderen?</h2>
     <p>Dit item wordt definitief verwijderd uit de vriezer inventaris.</p>
-    <div class="confirm-btns">
+    <label class="del-to-list">
+      <input type="checkbox" id="delAddToList">
+      <span>Zet <b id="delItemName"></b> op de boodschappenlijst</span>
+    </label>
+    <div class="confirm-btns" style="margin-top:1rem">
       <button class="btn-cancel" onclick="closeOv('dModal')">Annuleren</button>
       <button class="btn-confirm-del" onclick="doDelete()">Verwijderen</button>
     </div>
@@ -925,13 +1113,46 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     BOODSCHAPPENLIJST
+══════════════════════════════════════════ -->
+<div class="overlay" id="blModal">
+<div class="modal">
+  <div class="modal-header"><h2>Boodschappenlijst</h2></div>
+  <div class="modal-scroll">
+    <div class="bl-add-row">
+      <input type="text" id="blInput" placeholder="Item toevoegen…" onkeydown="if(event.key==='Enter')addBoodschap()">
+      <button class="bl-add-btn" onclick="addBoodschap()"><svg width="15" height="15"><use href="#ico-plus"/></svg></button>
+    </div>
+    <div class="bl-list" id="blList"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeOv('blModal')">Sluiten</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     BARCODE SCANNER
+══════════════════════════════════════════ -->
+<div class="overlay scanner-overlay" id="scanModal">
+  <div class="scanner-box">
+    <div class="scanner-status" id="scanStatus">Richt op de streepjescode…</div>
+    <video class="scanner-video" id="scanVideo" playsinline muted></video>
+    <div class="scanner-frame"></div>
+    <div class="scanner-hint">Houd de camera stil boven de barcode</div>
+    <button class="scanner-close" onclick="closeScanner()">Annuleren</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <!-- canvas removed: photo processing moved to server -->
 
+<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
 <script>
 'use strict';
 const API = '/api';
-let editId = null, deleteId = null, activeVriezer = 0, gvOnly = false, isGV = true, photoData = null;
+let editId = null, deleteId = null, activeVriezer = 0, gvOnly = false, verlopenOnly = false, isGV = true, photoData = null;
 
 // ── Photo ─────────────────────────────────────────────────
 async function handlePhoto(e) {
@@ -968,7 +1189,7 @@ async function handlePhoto(e) {
     console.error('handlePhoto error:', err);
     toast('Foto laden mislukt — probeer opnieuw', 'err');
     // Restore buttons
-    btns.innerHTML = '<label class="photo-btn-label" for="photoCamera" onclick="_markCameraOpen()"><svg width="17" height="17"><use href="#ico-cam"/></svg>Camera</label><label class="photo-btn-label" for="photoGallery" onclick="_markCameraOpen()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Galerij</label>';
+    btns.innerHTML = '<label class="photo-btn-label" for="photoCamera" onclick="_markCameraOpen()"><svg width="17" height="17"><use href="#ico-cam"/></svg>Camera</label><label class="photo-btn-label" for="photoGallery" onclick="_markCameraOpen()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Galerij</label><button type="button" class="photo-btn-label scan-btn" onclick="openScanner()"><svg width="17" height="17"><use href="#ico-barcode"/></svg>Scan</button>';
     btns.style.display = 'flex';
   }
 }
@@ -1040,6 +1261,11 @@ async function loadStats() {
     document.getElementById('sGV').textContent     = d.gv;
     document.getElementById('cBosch').textContent  = d.vriezer1;
     document.getElementById('cKist').textContent   = d.vriezer2;
+    document.getElementById('sBijnaVerlopen').textContent = d.bijnaVerlopen;
+    document.getElementById('pillBijnaVerlopen').classList.toggle('hidden-pill', !d.bijnaVerlopen);
+    const badge = document.getElementById('cartBadge');
+    badge.textContent = d.boodschappenOpen;
+    badge.classList.toggle('show', !!d.boodschappenOpen);
   } catch {}
 }
 function setVriezer(n, el) {
@@ -1052,9 +1278,32 @@ function toggleGV() {
   document.getElementById('chipGV').classList.toggle('active', gvOnly);
   loadItems();
 }
+function toggleVerlopen() {
+  verlopenOnly = !verlopenOnly;
+  document.getElementById('chipVerlopen').classList.toggle('active', verlopenOnly);
+  loadItems();
+}
+function toggleBijnaVerlopen() {
+  if (!verlopenOnly) toggleVerlopen();
+  else document.getElementById('grid').scrollIntoView({ behavior:'smooth' });
+}
 
 // ── Items ─────────────────────────────────────────────────
 const CAT_LABEL = { vlees:'Vlees', vis:'Vis', groenten:'Groenten', fruit:'Fruit', snacks:'Snacks', soepen:'Soepen', brood:'Brood / gebak', maaltijden:'Kant-en-klaar', zuivel:'Zuivel / eieren', ijs:'IJs / desserts', overige:'Overige' };
+const SHELF_LIFE_MAANDEN = { vlees:6, vis:4, groenten:10, fruit:10, snacks:6, soepen:3, brood:3, maaltijden:3, zuivel:4, ijs:6, overige:6 };
+
+function updateHoudbaarhHint() {
+  const hintEl = document.getElementById('houdbaarHint');
+  const override = document.getElementById('fHoudbaar').value;
+  if (override) { hintEl.textContent = ''; return; }
+  const datum = document.getElementById('fDatum').value;
+  const cat = document.getElementById('fCat').value;
+  if (!datum) { hintEl.innerHTML = 'Standaard bewaartijd: <b>' + (SHELF_LIFE_MAANDEN[cat]||6) + ' maanden</b> na invriesdatum'; return; }
+  const d = new Date(datum + 'T00:00:00');
+  d.setMonth(d.getMonth() + (SHELF_LIFE_MAANDEN[cat] || 6));
+  const vervaldatum = d.toISOString().slice(0,10);
+  hintEl.innerHTML = 'Verwachte houdbaarheid: <b>' + fmtDate(vervaldatum) + '</b> (' + (SHELF_LIFE_MAANDEN[cat]||6) + ' mnd) — vul hierboven een datum in om dit te overschrijven';
+}
 
 function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtDate(d) { if (!d) return ''; const [y,m,dd] = d.split('-'); return dd+'/'+m+'/'+y; }
@@ -1065,6 +1314,7 @@ async function loadItems() {
   const cat = document.getElementById('fCatF').value; if (cat) p.set('categorie', cat);
   const zoek = document.getElementById('fZoek').value; if (zoek) p.set('zoek', zoek);
   if (gvOnly) p.set('glutenvrij', '1');
+  if (verlopenOnly) p.set('verloopt_binnen', '14');
   try {
     const items = await (await fetch(API + '/items?' + p)).json();
     const g = document.getElementById('grid');
@@ -1082,18 +1332,28 @@ async function loadItems() {
       const datum = i.datum_ingevroren ? `<div class="card-date">ingevroren <b>${fmtDate(i.datum_ingevroren)}</b></div>` : '';
       const note  = i.notities ? `<div class="card-note">${esc(i.notities)}</div>` : '';
       const photo = i.foto ? `<img class="card-photo" src="${i.foto}" alt="${esc(i.naam)}" loading="lazy">` : '';
-      return `<div class="item-card">
+      let expTag = '', cardExpClass = '';
+      if (i.dagen_resterend !== null && i.dagen_resterend !== undefined) {
+        if (i.dagen_resterend < 0) {
+          expTag = `<span class="exp-tag exp-over"><svg width="9" height="9"><use href="#ico-clock"/></svg>verlopen</span>`;
+          cardExpClass = ' is-expired';
+        } else if (i.dagen_resterend <= 14) {
+          expTag = `<span class="exp-tag exp-warn"><svg width="9" height="9"><use href="#ico-clock"/></svg>${i.dagen_resterend===0?'vandaag':'nog '+i.dagen_resterend+'d'}</span>`;
+          cardExpClass = ' is-expiring';
+        }
+      }
+      return `<div class="item-card${cardExpClass}">
         ${photo}<div class="card-content" onclick="openEdit(${i.id})">
           <div class="card-row1"><div class="card-name">${esc(i.naam)}</div>${badge}</div>
           <div class="card-row2">
             <span class="card-cat">${esc(CAT_LABEL[i.categorie]||i.categorie)}</span>
             <span class="card-sep">·</span>
             <span class="meta-tag fz ${vc}"><span class="fz-dot ${vc}" style="width:5px;height:5px;border-radius:1px;margin-right:3px;display:inline-block;vertical-align:middle"></span>${vl}</span>
-            ${qty}
+            ${qty}${expTag}
           </div>
           ${datum}${note}
         </div>
-        <button class="card-del" onclick="quickDelete(event,${i.id})" title="Verwijderen">
+        <button class="card-del" onclick="quickDelete(event,${i.id},'${esc(i.naam).replace(/'/g,"\\'")}','${i.categorie}')" title="Verwijderen">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         </button>
       </div>`;
@@ -1126,8 +1386,10 @@ function openAdd() {
   document.getElementById('fVriezer').value = activeVriezer > 0 ? String(activeVriezer) : '1';
   document.getElementById('fEenh').value    = '';
   document.getElementById('fDatum').value   = new Date().toISOString().slice(0,10);
+  document.getElementById('fHoudbaar').value = '';
   document.getElementById('btnDel').style.display = 'none';
   resetPhoto(); setGV(true); openOv('fModal');
+  updateHoudbaarhHint();
   setTimeout(() => document.getElementById('fNaam').focus(), 320);
 }
 
@@ -1142,11 +1404,13 @@ async function openEdit(id) {
     document.getElementById('fHoev').value           = i.hoeveelheid || '';
     document.getElementById('fEenh').value           = i.eenheid || '';
     document.getElementById('fDatum').value          = i.datum_ingevroren || '';
+    document.getElementById('fHoudbaar').value       = i.houdbaar_tot || '';
     document.getElementById('fNote').value           = i.notities || '';
     document.getElementById('btnDel').style.display  = 'block';
     resetPhoto();
     if (i.foto) { photoData = i.foto; setPhotoPreview(i.foto); }
     setGV(!!i.glutenvrij); openOv('fModal');
+    updateHoudbaarhHint();
   } catch { toast('Laadfrout', 'err'); }
 }
 
@@ -1163,6 +1427,7 @@ async function saveItem() {
     hoeveelheid: document.getElementById('fHoev').value.trim(),
     eenheid: document.getElementById('fEenh').value,
     datum_ingevroren: document.getElementById('fDatum').value || null,
+    houdbaar_tot: document.getElementById('fHoudbaar').value || null,
     notities: document.getElementById('fNote').value.trim(),
     foto: photoData || null
   };
@@ -1184,18 +1449,35 @@ async function saveItem() {
   } catch (e) { toast('Verbindingsfout — probeer opnieuw', 'err'); console.error(e); }
 }
 
-function confirmDel() { deleteId = editId; closeOv('fModal'); setTimeout(() => openOv('dModal'), 140); }
-async function quickDelete(e, id) {
+let pendingDelNaam = '', pendingDelCat = '';
+function confirmDel() {
+  pendingDelNaam = document.getElementById('fNaam').value.trim();
+  pendingDelCat  = document.getElementById('fCat').value;
+  deleteId = editId;
+  closeOv('fModal');
+  setTimeout(openDeleteConfirm, 140);
+}
+function openDeleteConfirm() {
+  document.getElementById('delItemName').textContent = pendingDelNaam || 'dit item';
+  document.getElementById('delAddToList').checked = false;
+  openOv('dModal');
+}
+async function quickDelete(e, id, naam, categorie) {
   e.stopPropagation();
-  try {
-    await fetch(API + '/items/' + id, { method: 'DELETE' });
-    toast('Verwijderd', 'ok');
-    setTimeout(() => { loadItems(); loadStats(); }, 120);
-  } catch { toast('Verwijderen mislukt', 'err'); }
+  deleteId = id; pendingDelNaam = naam; pendingDelCat = categorie;
+  openDeleteConfirm();
 }
 async function doDelete() {
   if (!deleteId) return;
   try {
+    if (document.getElementById('delAddToList').checked && pendingDelNaam) {
+      try {
+        await fetch(API + '/boodschappen', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ naam: pendingDelNaam, categorie: pendingDelCat, bron: 'verwijderd-item' })
+        });
+      } catch {}
+    }
     await fetch(API + '/items/' + deleteId, { method: 'DELETE' });
     closeOv('dModal'); deleteId = null;
     toast('Verwijderd', 'ok');
@@ -1211,7 +1493,134 @@ function toast(msg, type = 'ok') {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
 }
 
-document.querySelectorAll('.overlay').forEach(ov => ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); }));
+// ── Boodschappenlijst ───────────────────────────────────────
+function openBoodschappen() { loadBoodschappen(); openOv('blModal'); }
+
+async function loadBoodschappen() {
+  const list = document.getElementById('blList');
+  try {
+    const items = await (await fetch(API + '/boodschappen')).json();
+    if (!items.length) {
+      list.innerHTML = `<div class="bl-empty"><svg color="#2e6da4" viewBox="0 0 24 24"><use href="#ico-cart"/></svg><p>Boodschappenlijst is leeg</p></div>`;
+      return;
+    }
+    list.innerHTML = items.map(b => `
+      <div class="bl-row ${b.gekocht ? 'checked' : ''}">
+        <div class="bl-check" onclick="toggleBoodschap(${b.id}, ${b.gekocht ? 0 : 1})">
+          ${b.gekocht ? '<svg width="12" height="12"><use href="#ico-check"/></svg>' : ''}
+        </div>
+        <div class="bl-info">
+          <div class="bl-naam">${esc(b.naam)}</div>
+          ${b.categorie ? `<div class="bl-meta">${esc(CAT_LABEL[b.categorie]||b.categorie)}</div>` : ''}
+        </div>
+        <button class="bl-del" onclick="deleteBoodschap(${b.id})" title="Verwijderen">
+          <svg width="14" height="14"><use href="#ico-trash"/></svg>
+        </button>
+      </div>`).join('');
+  } catch { list.innerHTML = `<div class="bl-empty"><p>Laden mislukt</p></div>`; }
+}
+
+async function addBoodschap() {
+  const input = document.getElementById('blInput');
+  const naam = input.value.trim();
+  if (!naam) return;
+  try {
+    await fetch(API + '/boodschappen', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ naam, bron: 'handmatig' })
+    });
+    input.value = '';
+    loadBoodschappen(); loadStats();
+  } catch { toast('Toevoegen mislukt', 'err'); }
+}
+
+async function toggleBoodschap(id, gekocht) {
+  try {
+    await fetch(API + '/boodschappen/' + id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gekocht })
+    });
+    loadBoodschappen(); loadStats();
+  } catch { toast('Bijwerken mislukt', 'err'); }
+}
+
+async function deleteBoodschap(id) {
+  try {
+    await fetch(API + '/boodschappen/' + id, { method: 'DELETE' });
+    loadBoodschappen(); loadStats();
+  } catch { toast('Verwijderen mislukt', 'err'); }
+}
+
+document.querySelectorAll('.overlay').forEach(ov => ov.addEventListener('click', e => {
+  if (e.target !== ov) return;
+  if (ov.id === 'scanModal') { closeScanner(); return; }
+  ov.classList.remove('open');
+}));
+
+// ── Barcode scanner ─────────────────────────────────────────
+let _zxingReader = null, _scanStream = null;
+
+async function openScanner() {
+  const statusEl = document.getElementById('scanStatus');
+  statusEl.textContent = 'Camera starten…';
+  openOv('scanModal');
+  if (typeof ZXing === 'undefined') {
+    statusEl.textContent = 'Scanner niet beschikbaar (geen internet?)';
+    return;
+  }
+  try {
+    const video = document.getElementById('scanVideo');
+    _zxingReader = new ZXing.BrowserMultiFormatReader();
+    const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
+    const backCam = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[devices.length - 1];
+    statusEl.textContent = 'Richt op de streepjescode…';
+    _zxingReader.decodeFromVideoDevice(backCam ? backCam.deviceId : null, video, (result, err) => {
+      if (result) handleBarcode(result.getText());
+    });
+  } catch (e) {
+    console.error('Scanner error:', e);
+    statusEl.textContent = 'Geen cameratoegang — controleer machtigingen';
+  }
+}
+
+function closeScanner() {
+  closeOv('scanModal');
+  if (_zxingReader) { try { _zxingReader.reset(); } catch(e) {} _zxingReader = null; }
+}
+
+async function handleBarcode(code) {
+  if (!code) return;
+  closeScanner();
+  toast('Streepjescode: ' + code, 'ok');
+  try {
+    const r = await fetch('https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(code) + '.json?fields=product_name,product_name_nl,product_name_fr,quantity');
+    const data = await r.json();
+    if (data && data.status === 1 && data.product) {
+      const naam = data.product.product_name_nl || data.product.product_name || data.product.product_name_fr || '';
+      if (naam) {
+        document.getElementById('fNaam').value = naam;
+        autoFillCategorie(naam);
+      }
+      if (data.product.quantity && !document.getElementById('fHoev').value) {
+        const m = String(data.product.quantity).match(/([\d.,]+)\s*(g|kg|ml|l)/i);
+        if (m) {
+          document.getElementById('fHoev').value = m[1];
+          const eenh = m[2].toLowerCase();
+          const sel = document.getElementById('fEenh');
+          if ([...sel.options].some(o => o.value === eenh)) sel.value = eenh;
+        }
+      }
+      if (!naam) toast('Product gevonden, maar geen naam beschikbaar — vul zelf aan', 'ok');
+    } else {
+      toast('Product niet gevonden — naam zelf invullen', 'err');
+    }
+  } catch (e) {
+    console.error('Open Food Facts lookup mislukt:', e);
+    toast('Opzoeken mislukt — naam zelf invullen', 'err');
+  }
+  if (!document.getElementById('fModal').classList.contains('open')) openOv('fModal');
+  document.getElementById('fNaam').focus();
+}
 
 
 // ── Autofill categorie ─────────────────────────────────────
