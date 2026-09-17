@@ -93,12 +93,56 @@ try {
   fs.writeFileSync(SECRET_FILE, SESSION_SECRET);
 }
 
+// Sessions are stored in the same SQLite DB (on the persistent /data volume)
+// instead of the default in-memory store, so logins survive container restarts.
+class SQLiteSessionStore extends session.Store {
+  constructor(dbHandle) {
+    super();
+    this.db = dbHandle;
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        sid TEXT PRIMARY KEY,
+        sess TEXT NOT NULL,
+        expires INTEGER NOT NULL
+      )
+    `);
+    this._get = this.db.prepare('SELECT sess, expires FROM sessions WHERE sid = ?');
+    this._set = this.db.prepare(`
+      INSERT INTO sessions (sid, sess, expires) VALUES (?, ?, ?)
+      ON CONFLICT(sid) DO UPDATE SET sess = excluded.sess, expires = excluded.expires
+    `);
+    this._del = this.db.prepare('DELETE FROM sessions WHERE sid = ?');
+    this._purge = this.db.prepare('DELETE FROM sessions WHERE expires < ?');
+    setInterval(() => { try { this._purge.run(Date.now()); } catch {} }, 24 * 60 * 60 * 1000).unref();
+  }
+  get(sid, cb) {
+    try {
+      const row = this._get.get(sid);
+      if (!row || row.expires < Date.now()) return cb(null, null);
+      cb(null, JSON.parse(row.sess));
+    } catch (e) { cb(e); }
+  }
+  set(sid, sess, cb) {
+    try {
+      const expires = sess.cookie && sess.cookie.expires ? new Date(sess.cookie.expires).getTime() : Date.now() + 90 * 24 * 60 * 60 * 1000;
+      this._set.run(sid, JSON.stringify(sess), expires);
+      cb && cb();
+    } catch (e) { cb && cb(e); }
+  }
+  destroy(sid, cb) {
+    try { this._del.run(sid); cb && cb(); } catch (e) { cb && cb(e); }
+  }
+  touch(sid, sess, cb) { this.set(sid, sess, cb); }
+}
+
 app.use(session({
+  store: new SQLiteSessionStore(db),
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  rolling: true, // extend the session on every request, so active use never expires
   cookie: {
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
     sameSite: 'lax',
     secure: false,   // HTTP (no HTTPS on local network)
     httpOnly: true

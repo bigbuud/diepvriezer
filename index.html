@@ -1575,22 +1575,43 @@ async function openScanner() {
   const statusEl = document.getElementById('scanStatus');
   statusEl.textContent = 'Camera starten…';
   openOv('scanModal');
+
+  if (!window.isSecureContext) {
+    statusEl.textContent = 'Camera vereist een beveiligde (https) verbinding — open de app via https:// om te kunnen scannen';
+    return;
+  }
   if (typeof ZXing === 'undefined') {
     statusEl.textContent = 'Scanner niet beschikbaar (geen internet?)';
     return;
   }
+
   try {
     const video = document.getElementById('scanVideo');
     _zxingReader = new ZXing.BrowserMultiFormatReader();
-    const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
-    const backCam = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[devices.length - 1];
+    let backCam = null;
+    try {
+      const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
+      backCam = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[devices.length - 1] || null;
+    } catch { /* device list can fail before permission is granted — fall back to default camera */ }
+
     statusEl.textContent = 'Richt op de streepjescode…';
-    _zxingReader.decodeFromVideoDevice(backCam ? backCam.deviceId : null, video, (result, err) => {
+    // Awaiting this is essential: it's what actually triggers the browser's
+    // camera permission prompt and lets us catch a denial/error below.
+    await _zxingReader.decodeFromVideoDevice(backCam ? backCam.deviceId : undefined, video, (result) => {
       if (result) handleBarcode(result.getText());
     });
   } catch (e) {
     console.error('Scanner error:', e);
-    statusEl.textContent = 'Geen cameratoegang — controleer machtigingen';
+    const name = e && e.name;
+    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+      statusEl.textContent = 'Cameratoegang geweigerd — sta dit toe via het slotje naast het adres';
+    } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+      statusEl.textContent = 'Geen camera gevonden op dit toestel';
+    } else if (name === 'NotReadableError') {
+      statusEl.textContent = 'Camera is al in gebruik door een andere app';
+    } else {
+      statusEl.textContent = 'Geen cameratoegang — controleer machtigingen';
+    }
   }
 }
 
