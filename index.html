@@ -1587,17 +1587,27 @@ async function openScanner() {
 
   try {
     const video = document.getElementById('scanVideo');
-    _zxingReader = new ZXing.BrowserMultiFormatReader();
-    let backCam = null;
-    try {
-      const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
-      backCam = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[devices.length - 1] || null;
-    } catch { /* device list can fail before permission is granted — fall back to default camera */ }
+    // TRY_HARDER improves detection of small/angled/low-contrast barcodes.
+    const hints = new Map();
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+    _zxingReader = new ZXing.BrowserMultiFormatReader(hints);
 
     statusEl.textContent = 'Richt op de streepjescode…';
+    // Let the browser pick the right rear lens via facingMode instead of
+    // guessing from device labels — on phones with multiple back cameras
+    // (wide/ultra-wide/macro), label-matching can grab a lens with poor
+    // close-up autofocus, which looks like "nothing gets recognized".
+    const constraints = {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width:  { ideal: 1280 },
+        height: { ideal: 720 },
+        advanced: [{ focusMode: 'continuous' }]
+      }
+    };
     // Awaiting this is essential: it's what actually triggers the browser's
     // camera permission prompt and lets us catch a denial/error below.
-    await _zxingReader.decodeFromVideoDevice(backCam ? backCam.deviceId : undefined, video, (result) => {
+    await _zxingReader.decodeFromConstraints(constraints, video, (result) => {
       if (result) handleBarcode(result.getText());
     });
   } catch (e) {
