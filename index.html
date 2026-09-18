@@ -481,11 +481,20 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
   background:var(--c-navy);
   padding:.9rem 1.25rem;
   flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
 }
 .modal-header h2 {
   font-family:var(--font-serif); font-weight:600; font-size:1.15rem;
   color:#fff; letter-spacing:-.01em;
 }
+.modal-close {
+  display:flex; align-items:center; justify-content:center;
+  width:30px; height:30px; flex-shrink:0;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
+  border-radius:8px; color:#fff; cursor:pointer;
+  transition:background .18s;
+}
+.modal-close:hover { background:rgba(255,255,255,.2); }
 
 .modal-scroll { overflow-y:auto; flex:1; padding:.9rem 1.25rem; }
 
@@ -1004,7 +1013,12 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 ══════════════════════════════════════════ -->
 <div class="overlay" id="fModal">
 <div class="modal">
-  <div class="modal-header"><h2 id="mTitle">Item toevoegen</h2></div>
+  <div class="modal-header">
+    <h2 id="mTitle">Item toevoegen</h2>
+    <button type="button" class="modal-close" onclick="closeOv('fModal')" title="Terug naar dashboard" aria-label="Sluiten">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+  </div>
   <div class="modal-scroll">
 
     <!-- Photo -->
@@ -1126,7 +1140,12 @@ select.filter-sel:focus { outline:none; border-color:var(--c-blue2); }
 ══════════════════════════════════════════ -->
 <div class="overlay" id="blModal">
 <div class="modal">
-  <div class="modal-header"><h2>Boodschappenlijst</h2></div>
+  <div class="modal-header">
+    <h2>Boodschappenlijst</h2>
+    <button type="button" class="modal-close" onclick="closeOv('blModal')" title="Terug naar dashboard" aria-label="Sluiten">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+  </div>
   <div class="modal-scroll">
     <div class="bl-add-row">
       <input type="text" id="blInput" placeholder="Item toevoegen…" onkeydown="if(event.key==='Enter')addBoodschap()">
@@ -1240,13 +1259,15 @@ function showApp() {
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('header').classList.add('show');
   document.getElementById('app').classList.add('show');
-  loadStats(); loadItems();
-  // Android: OS killed app during camera → page reloaded → restore here
-  // (iOS is handled by visibilitychange, not here)
+  // Android: OS killed app during camera → page reloaded → restore the form
+  // immediately, BEFORE the dashboard renders underneath, so returning from
+  // the camera feels like coming straight back to the form — not a jump
+  // through the dashboard first.
   const isAndroid = /android/i.test(navigator.userAgent);
   if (isAndroid && restoreFormDraft()) {
-    setTimeout(() => openOv('fModal'), 400);
+    openOv('fModal');
   }
+  loadStats(); loadItems();
 }
 async function doLogin() {
   const u = document.getElementById('lUser').value.trim(), p = document.getElementById('lPass').value;
@@ -1635,13 +1656,19 @@ async function handleBarcode(code) {
   closeScanner();
   toast('Streepjescode: ' + code, 'ok');
   try {
-    const r = await fetch('https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(code) + '.json?fields=product_name,product_name_nl,product_name_fr,quantity');
+    const r = await fetch('https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(code) + '.json?fields=product_name,product_name_nl,product_name_fr,quantity,categories_tags');
     const data = await r.json();
     if (data && data.status === 1 && data.product) {
       const naam = data.product.product_name_nl || data.product.product_name || data.product.product_name_fr || '';
       if (naam) {
         document.getElementById('fNaam').value = naam;
-        autoFillCategorie(naam);
+        // Prefer OFF's own category taxonomy (more reliable than name-guessing,
+        // e.g. correctly maps multi-word names our dictionary doesn't cover),
+        // then fall back to name-based guessing, then a neutral default —
+        // never leave the field on a stale/wrong category from before scanning.
+        const cat = guessCategorieFromOffTags(data.product.categories_tags) || guessCategorie(naam) || 'overige';
+        document.getElementById('fCat').value = cat;
+        updateHoudbaarhHint();
       }
       if (data.product.quantity && !document.getElementById('fHoev').value) {
         const m = String(data.product.quantity).match(/([\d.,]+)\s*(g|kg|ml|l)/i);
@@ -1733,27 +1760,58 @@ function learnCategory(naam, cat) {
   try { localStorage.setItem(LEARNED_KEY, JSON.stringify(learned)); } catch {}
 }
 
-function autoFillCategorie(naam) {
-  if (!naam || naam.length < 3) return;
+function guessCategorie(naam) {
+  if (!naam || naam.length < 3) return null;
   const sleutel = naam.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 
-  // 1. Learned entries take priority (user explicitly chose this)
+  // 1. Learned entries take priority (user explicitly chose this before)
   const learned = getLearnedCats();
-  if (learned[sleutel]) { document.getElementById('fCat').value = learned[sleutel]; return; }
-  // partial match in learned
+  if (learned[sleutel]) return learned[sleutel];
   for (const [woord, cat] of Object.entries(learned)) {
-    if (sleutel.startsWith(woord) || woord.startsWith(sleutel)) {
-      document.getElementById('fCat').value = cat; return;
-    }
+    if (sleutel.startsWith(woord) || woord.startsWith(sleutel)) return cat;
   }
 
-  // 2. Built-in dictionary
-  if (FOOD_CAT[sleutel]) { document.getElementById('fCat').value = FOOD_CAT[sleutel]; return; }
+  // 2. Built-in dictionary — whole-name match (handles single-word names)
+  if (FOOD_CAT[sleutel]) return FOOD_CAT[sleutel];
   for (const [woord, cat] of Object.entries(FOOD_CAT)) {
-    if (sleutel.startsWith(woord) || woord.startsWith(sleutel)) {
-      document.getElementById('fCat').value = cat; return;
-    }
+    if (sleutel.startsWith(woord) || woord.startsWith(sleutel)) return cat;
   }
+
+  // 3. Word-level match — catches multi-word names like "Calvé Pindakaas"
+  // or "Diepvries Hoeve Erwten" where the dictionary word isn't the first one.
+  const woorden = sleutel.split(/[^a-z0-9]+/).filter(w => w.length >= 3);
+  for (const w of woorden) {
+    if (FOOD_CAT[w]) return FOOD_CAT[w];
+    for (const [lw, cat] of Object.entries(learned)) { if (lw === w) return cat; }
+  }
+
+  return null;
+}
+function autoFillCategorie(naam) {
+  const cat = guessCategorie(naam);
+  if (cat) document.getElementById('fCat').value = cat;
+}
+
+// Maps Open Food Facts' own category taxonomy to our 11 local categories.
+// More reliable than name-guessing alone for scanned products, since OFF
+// already classifies the product rather than us pattern-matching its name.
+const OFF_CAT_MAP = [
+  [/seafood|fish|shellfish|salmon|tuna|shrimp|crab|mussel/, 'vis'],
+  [/meat|poultry|beef|pork|sausage|charcuterie|chicken|turkey|lamb/, 'vlees'],
+  [/vegetable|potato|legume/, 'groenten'],
+  [/fruit|berr/, 'fruit'],
+  [/dairy|dairies|cheese|yogurt|yoghurt|milk|cream|egg/, 'zuivel'],
+  [/ice-cream|sorbet|frozen-dessert|gelato/, 'ijs'],
+  [/bread|pastry|pastries|viennoiserie|cake|bakery/, 'brood'],
+  [/meal|pizza|pasta|lasagne|prepared-dish|ready-to-eat|quiche/, 'maaltijden'],
+  [/soup|broth|bouillon/, 'soepen'],
+  [/snack|appetizer|fries|nugget|spring-roll|chip|fritter/, 'snacks'],
+];
+function guessCategorieFromOffTags(categoriesTags) {
+  if (!categoriesTags || !categoriesTags.length) return null;
+  const joined = categoriesTags.join(' ').toLowerCase();
+  for (const [re, cat] of OFF_CAT_MAP) { if (re.test(joined)) return cat; }
+  return null;
 }
 
 
